@@ -18,7 +18,7 @@ Users scratch to reveal your content. It's dumb and delightful.
 Script tag. Done.
 
 ```html
-<script src="https://your-netlify-site.netlify.app/scratch-off.iife.js"></script>
+<script src="https://scratchy-lotto.com/scratch-off.iife.js"></script>
 ```
 
 Or npm if that's your thing:
