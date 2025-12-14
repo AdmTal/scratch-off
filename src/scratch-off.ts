@@ -41,6 +41,11 @@ interface ElementShape {
   lineHeight: number;
 }
 
+interface TouchState {
+  lastX: number;
+  lastY: number;
+}
+
 class ScratchOff {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -49,9 +54,10 @@ class ScratchOff {
   private particleCanvas: HTMLCanvasElement;
   private particleCtx: CanvasRenderingContext2D;
   private particles: Particle[] = [];
-  private isScratching = false;
-  private lastX = 0;
-  private lastY = 0;
+  private isMouseScratching = false;
+  private mouseLastX = 0;
+  private mouseLastY = 0;
+  private activeTouches: Map<number, TouchState> = new Map();
   private scratchRadius = 30;
   private totalPixels = 0;
   private scratchedPixels = 0;
@@ -577,50 +583,76 @@ class ScratchOff {
     this.canvas.addEventListener('mouseup', this.handleEnd.bind(this));
     this.canvas.addEventListener('mouseleave', this.handleEnd.bind(this));
 
-    // Touch events
+    // Touch events - support multi-touch
     this.canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
     this.canvas.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-    this.canvas.addEventListener('touchend', this.handleEnd.bind(this));
+    this.canvas.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
+    this.canvas.addEventListener('touchcancel', this.handleTouchEnd.bind(this), { passive: false });
   }
 
   private handleStart(e: MouseEvent): void {
-    this.isScratching = true;
-    this.lastX = e.clientX;
-    this.lastY = e.clientY;
-    this.scratch(e.clientX, e.clientY);
+    this.isMouseScratching = true;
+    this.mouseLastX = e.clientX;
+    this.mouseLastY = e.clientY;
+    this.scratch(e.clientX, e.clientY, this.mouseLastX, this.mouseLastY);
+    this.mouseLastX = e.clientX;
+    this.mouseLastY = e.clientY;
   }
 
   private handleMove(e: MouseEvent): void {
-    if (!this.isScratching) return;
-    this.scratch(e.clientX, e.clientY);
+    if (!this.isMouseScratching) return;
+    this.scratch(e.clientX, e.clientY, this.mouseLastX, this.mouseLastY);
+    this.mouseLastX = e.clientX;
+    this.mouseLastY = e.clientY;
+  }
+
+  private handleEnd(): void {
+    this.isMouseScratching = false;
   }
 
   private handleTouchStart(e: TouchEvent): void {
     e.preventDefault();
-    this.isScratching = true;
-    const touch = e.touches[0];
-    this.lastX = touch.clientX;
-    this.lastY = touch.clientY;
-    this.scratch(touch.clientX, touch.clientY);
+    // Process all new touches
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i];
+      const touchState: TouchState = {
+        lastX: touch.clientX,
+        lastY: touch.clientY
+      };
+      this.activeTouches.set(touch.identifier, touchState);
+      this.scratch(touch.clientX, touch.clientY, touchState.lastX, touchState.lastY);
+    }
   }
 
   private handleTouchMove(e: TouchEvent): void {
     e.preventDefault();
-    if (!this.isScratching) return;
-    const touch = e.touches[0];
-    this.scratch(touch.clientX, touch.clientY);
+    // Process all moved touches
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i];
+      const touchState = this.activeTouches.get(touch.identifier);
+      if (touchState) {
+        this.scratch(touch.clientX, touch.clientY, touchState.lastX, touchState.lastY);
+        touchState.lastX = touch.clientX;
+        touchState.lastY = touch.clientY;
+      }
+    }
   }
 
-  private handleEnd(): void {
-    this.isScratching = false;
+  private handleTouchEnd(e: TouchEvent): void {
+    e.preventDefault();
+    // Remove ended touches
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i];
+      this.activeTouches.delete(touch.identifier);
+    }
   }
 
-  private scratch(x: number, y: number): void {
+  private scratch(x: number, y: number, lastX: number, lastY: number): void {
     if (this.isFading) return;
 
     // Determine scratch direction and detect direction changes
-    const dx = x - this.lastX;
-    const dy = y - this.lastY;
+    const dx = x - lastX;
+    const dy = y - lastY;
     let currentDirection: 'up' | 'down' | 'left' | 'right';
 
     if (Math.abs(dy) > Math.abs(dx)) {
@@ -647,7 +679,7 @@ class ScratchOff {
     this.ctx.globalCompositeOperation = 'destination-out';
 
     // Draw irregular scratch line from last position
-    this.drawIrregularLine(this.ctx, this.lastX, this.lastY, x, y);
+    this.drawIrregularLine(this.ctx, lastX, lastY, x, y);
 
     // Also draw at current position for single clicks with irregular shape
     this.drawIrregularScratch(this.ctx, x, y);
@@ -656,11 +688,8 @@ class ScratchOff {
 
     // Track scratched area with same irregular shapes
     this.scratchCtx.fillStyle = '#000000';
-    this.drawIrregularLine(this.scratchCtx, this.lastX, this.lastY, x, y);
+    this.drawIrregularLine(this.scratchCtx, lastX, lastY, x, y);
     this.drawIrregularScratch(this.scratchCtx, x, y);
-
-    this.lastX = x;
-    this.lastY = y;
 
     // Check scratch progress periodically
     if (Math.random() < 0.1) {
