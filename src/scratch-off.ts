@@ -1158,9 +1158,11 @@ class ScratchOff {
   }
 
   private playScratchSound(directionChanged: boolean = false): void {
-    // Use pre-initialized audio context
+    // Ensure audio is initialized on first scratch (fixes race condition with event listeners)
+    this.ensureAudioInitialized();
+
     if (!this.audioContext) {
-      return; // Audio not ready yet
+      return; // Audio not supported
     }
 
     // Shorter duration for quick "scritch" sounds
@@ -1403,6 +1405,9 @@ class ScratchOff {
   }
 
   private playWinSound(): void {
+    // Ensure audio is initialized
+    this.ensureAudioInitialized();
+
     if (!this.audioContext) return;
 
     // Create a celebratory "ding ding ding" sound
