@@ -135,6 +135,7 @@ interface ElementShape {
   textLines: TextLineInfo[];
   fontSize: number;
   lineHeight: number;
+  domIndex: number;
 }
 
 interface TouchState {
@@ -344,6 +345,7 @@ class ScratchOff {
     const elements = document.body.querySelectorAll('*');
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+    let domIndex = 0;
 
     elements.forEach((el) => {
       if (el === this.canvas) return;
@@ -415,14 +417,21 @@ class ScratchOff {
             textLength,
             textLines,
             fontSize,
-            lineHeight
+            lineHeight,
+            domIndex: domIndex++
           });
         }
       }
     });
 
     // Sort by area (larger elements first) to layer properly
-    this.shapes.sort((a, b) => (b.width * b.height) - (a.width * a.height));
+    // For same-area elements, prefer later DOM elements (higher domIndex) as they're more likely to be content, not background
+    this.shapes.sort((a, b) => {
+      const areaDiff = (b.width * b.height) - (a.width * a.height);
+      if (areaDiff !== 0) return areaDiff;
+      // For ties, prefer later elements (higher domIndex comes first in the sorted array)
+      return b.domIndex - a.domIndex;
+    });
   }
 
   private isSignificantElement(tagName: string, rect: DOMRect): boolean {
