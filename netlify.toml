@@ -16,12 +16,28 @@
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
 
-# Hashed JS files - long cache (they have content hash in filename)
+# IIFE bundle - cache for 1 hour, but allow CDN to serve stale while revalidating
+# This gives good performance while ensuring updates propagate within an hour
 [[headers]]
-  for = "/*.*.js"
+  for = "/scratch-off.iife.js"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
+    Content-Type = "application/javascript; charset=utf-8"
 
+# ES/UMD modules - same caching strategy
+[[headers]]
+  for = "/scratch-off.es.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
+    Content-Type = "application/javascript; charset=utf-8"
+
+[[headers]]
+  for = "/scratch-off.umd.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
+    Content-Type = "application/javascript; charset=utf-8"
+
+# Other JS files (fallback)
 [[headers]]
   for = "/*.js"
   [headers.values]
