@@ -1,7 +1,7 @@
-var S = Object.defineProperty;
-var A = (u, t, e) => t in u ? S(u, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : u[t] = e;
-var c = (u, t, e) => A(u, typeof t != "symbol" ? t + "" : t, e);
-const b = "G-552PMDLPMQ", T = {
+var A = Object.defineProperty;
+var F = (u, t, e) => t in u ? A(u, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : u[t] = e;
+var c = (u, t, e) => F(u, typeof t != "symbol" ? t + "" : t, e);
+const E = "G-552PMDLPMQ", T = {
   initialized: !1,
   /**
    * Initialize Google Analytics if not already present
@@ -13,9 +13,9 @@ const b = "G-552PMDLPMQ", T = {
       window.dataLayer.push(e);
     }), !document.querySelector('script[src*="googletagmanager.com/gtag/js"]')) {
       const t = document.createElement("script");
-      t.async = !0, t.src = `https://www.googletagmanager.com/gtag/js?id=${b}`, document.head.appendChild(t);
+      t.async = !0, t.src = `https://www.googletagmanager.com/gtag/js?id=${E}`, document.head.appendChild(t);
     }
-    window.gtag("js", /* @__PURE__ */ new Date()), window.gtag("config", b, {
+    window.gtag("js", /* @__PURE__ */ new Date()), window.gtag("config", E, {
       // Don't send automatic page view - we'll send our own with host info
       send_page_view: !1
     }), this.trackEvent("page_view", {
@@ -40,7 +40,7 @@ const b = "G-552PMDLPMQ", T = {
     window.gtag("event", u, e);
   }
 };
-class F {
+class L {
   constructor() {
     c(this, "canvas");
     c(this, "ctx");
@@ -149,43 +149,48 @@ class F {
   }
   detectElements() {
     const t = document.body.querySelectorAll("*"), e = window.innerWidth, i = window.innerHeight;
-    t.forEach((s) => {
-      if (s === this.canvas) return;
-      const a = s.getBoundingClientRect();
-      if (a.width > 0 && a.height > 0 && a.top < i && a.bottom > 0 && a.left < e && a.right > 0) {
-        const n = s.tagName.toLowerCase(), o = window.getComputedStyle(s);
-        if (o.display === "none" || o.visibility === "hidden")
+    let s = 0;
+    t.forEach((a) => {
+      if (a === this.canvas) return;
+      const o = a.getBoundingClientRect();
+      if (o.width > 0 && o.height > 0 && o.top < i && o.bottom > 0 && o.left < e && o.right > 0) {
+        const n = a.tagName.toLowerCase(), h = window.getComputedStyle(a);
+        if (h.display === "none" || h.visibility === "hidden")
           return;
-        let h = this.getShapeColor(n, o);
-        const r = parseFloat(o.borderTopWidth) || 0, l = parseFloat(o.borderRightWidth) || 0, d = parseFloat(o.borderBottomWidth) || 0, x = parseFloat(o.borderLeftWidth) || 0, f = r + l + d + x > 0, p = o.borderColor || "#888888";
-        let g = !1, C = 0, v = [], m = parseFloat(o.fontSize) || 16, E = parseFloat(o.lineHeight) || m * 1.2;
+        let r = this.getShapeColor(n, h);
+        const l = parseFloat(h.borderTopWidth) || 0, d = parseFloat(h.borderRightWidth) || 0, x = parseFloat(h.borderBottomWidth) || 0, f = parseFloat(h.borderLeftWidth) || 0, p = l + d + x + f > 0, g = h.borderColor || "#888888";
+        let C = !1, v = 0, m = [], b = parseFloat(h.fontSize) || 16, S = parseFloat(h.lineHeight) || b * 1.2;
         if (["p", "span", "h1", "h2", "h3", "h4", "h5", "h6", "li", "a", "button", "label", "td", "th", "strong", "em", "code", "pre"].includes(n)) {
-          const M = Array.from(s.childNodes).filter((y) => {
+          const M = Array.from(a.childNodes).filter((y) => {
             var w;
             return y.nodeType === Node.TEXT_NODE && ((w = y.textContent) == null ? void 0 : w.trim());
           });
-          M.length > 0 && (g = !0, C = M.map((y) => {
+          M.length > 0 && (C = !0, v = M.map((y) => {
             var w;
             return ((w = y.textContent) == null ? void 0 : w.trim()) || "";
-          }).join("").length, v = this.getTextLineRects(s, M));
+          }).join("").length, m = this.getTextLineRects(a, M));
         }
-        this.isSignificantElement(n, a) && this.shapes.push({
-          x: Math.max(0, a.left),
-          y: Math.max(0, a.top),
-          width: Math.min(a.width, e - a.left),
-          height: Math.min(a.height, i - a.top),
-          color: h,
+        this.isSignificantElement(n, o) && this.shapes.push({
+          x: Math.max(0, o.left),
+          y: Math.max(0, o.top),
+          width: Math.min(o.width, e - o.left),
+          height: Math.min(o.height, i - o.top),
+          color: r,
           type: n,
-          hasBorder: f,
-          borderColor: p,
-          hasText: g,
-          textLength: C,
-          textLines: v,
-          fontSize: m,
-          lineHeight: E
+          hasBorder: p,
+          borderColor: g,
+          hasText: C,
+          textLength: v,
+          textLines: m,
+          fontSize: b,
+          lineHeight: S,
+          domIndex: s++
         });
       }
-    }), this.shapes.sort((s, a) => a.width * a.height - s.width * s.height);
+    }), this.shapes.sort((a, o) => {
+      const n = o.width * o.height - a.width * a.height;
+      return n !== 0 ? n : o.domIndex - a.domIndex;
+    });
   }
   isSignificantElement(t, e) {
     const i = [
@@ -231,9 +236,9 @@ class F {
     return e.forEach((a) => {
       if (!a.textContent) return;
       a.textContent, s.selectNodeContents(a);
-      const n = s.getClientRects();
-      for (let o = 0; o < n.length; o++) {
-        const h = n[o];
+      const o = s.getClientRects();
+      for (let n = 0; n < o.length; n++) {
+        const h = o[n];
         if (h.width > 5 && h.height > 5) {
           const r = i.find(
             (l) => Math.abs(l.y - h.top) < h.height * 0.5
@@ -250,7 +255,7 @@ class F {
             });
         }
       }
-    }), i.sort((a, n) => a.y - n.y), i;
+    }), i.sort((a, o) => a.y - o.y), i;
   }
   getContrastColor(t) {
     const e = t.replace("#", ""), i = parseInt(e.substring(0, 2), 16), s = parseInt(e.substring(2, 4), 16), a = parseInt(e.substring(4, 6), 16);
@@ -292,17 +297,17 @@ class F {
     s.addColorStop(0, "#FFD700"), s.addColorStop(0.5, "#FFA500"), s.addColorStop(1, "#B8860B"), this.ctx.fillStyle = s, this.ctx.fillRect(0, i - 4, t, 4), this.ctx.font = 'bold 24px "Arial Black", "Impact", sans-serif', this.ctx.textAlign = "center", this.ctx.textBaseline = "middle", this.ctx.fillStyle = "#FFD700", this.ctx.fillText(this.ticketTitle, t / 2, i / 2 - 2), this.ctx.font = "18px Arial", this.ctx.fillText("★", t / 2 - 155, i / 2), this.ctx.fillText("★", t / 2 + 155, i / 2), this.ctx.font = "14px Arial", this.ctx.fillText("✦", t / 2 - 175, i / 2), this.ctx.fillText("✦", t / 2 + 175, i / 2);
     const a = this.generateSerialNumber();
     this.ctx.font = '10px "Courier New", monospace', this.ctx.textAlign = "right", this.ctx.fillStyle = "rgba(255, 215, 0, 0.7)", this.ctx.fillText(`SN: ${a}`, t - 15, 15), this.ctx.font = "bold 14px Arial, sans-serif", this.ctx.textAlign = "center", this.ctx.fillStyle = "rgba(60, 60, 60, 0.9)", this.ctx.fillText("Match 3 <div>s to WIN!", t / 2, i + 22);
-    const n = e - 30;
-    this.ctx.font = "9px Arial, sans-serif", this.ctx.textAlign = "left", this.ctx.fillStyle = "rgba(80, 80, 80, 0.7)", this.ctx.fillText("Odds of winning: 1 in 1", 15, n + 10), this.ctx.textAlign = "center", this.ctx.fillText("Must be 18+ to browse this website", t / 2, n + 10), this.ctx.save(), this.ctx.translate(t / 2, e / 2), this.ctx.rotate(-Math.PI / 6), this.ctx.font = "bold 48px Arial, sans-serif", this.ctx.fillStyle = "rgba(100, 100, 100, 0.08)", this.ctx.textAlign = "center", this.ctx.textBaseline = "middle", this.ctx.fillText("VOID IF TAMPERED", 0, 0), this.ctx.restore(), this.ctx.font = "bold 20px Arial, sans-serif", this.ctx.fillStyle = "rgba(255, 215, 0, 0.3)", this.ctx.textAlign = "left", this.ctx.fillText("$", 10, i + 50), this.ctx.textAlign = "right", this.ctx.fillText("$", t - 10, i + 50), this.ctx.textAlign = "left", this.ctx.fillText("$", 10, e - 50), this.ctx.textAlign = "right", this.ctx.fillText("$", t - 10, e - 50);
+    const o = e - 30;
+    this.ctx.font = "9px Arial, sans-serif", this.ctx.textAlign = "left", this.ctx.fillStyle = "rgba(80, 80, 80, 0.7)", this.ctx.fillText("Odds of winning: 1 in 1", 15, o + 10), this.ctx.textAlign = "center", this.ctx.fillText("Must be 18+ to browse this website", t / 2, o + 10), this.ctx.save(), this.ctx.translate(t / 2, e / 2), this.ctx.rotate(-Math.PI / 6), this.ctx.font = "bold 48px Arial, sans-serif", this.ctx.fillStyle = "rgba(100, 100, 100, 0.08)", this.ctx.textAlign = "center", this.ctx.textBaseline = "middle", this.ctx.fillText("VOID IF TAMPERED", 0, 0), this.ctx.restore(), this.ctx.font = "bold 20px Arial, sans-serif", this.ctx.fillStyle = "rgba(255, 215, 0, 0.3)", this.ctx.textAlign = "left", this.ctx.fillText("$", 10, i + 50), this.ctx.textAlign = "right", this.ctx.fillText("$", t - 10, i + 50), this.ctx.textAlign = "left", this.ctx.fillText("$", 10, e - 50), this.ctx.textAlign = "right", this.ctx.fillText("$", t - 10, e - 50);
   }
   drawElementLabels() {
     this.ctx.textAlign = "center", this.ctx.textBaseline = "middle";
-    const t = [], e = (i, s, a, n, o = 4) => {
+    const t = [], e = (i, s, a, o, n = 4) => {
       const h = {
-        left: i - a / 2 - o,
-        right: i + a / 2 + o,
-        top: s - n / 2 - o,
-        bottom: s + n / 2 + o
+        left: i - a / 2 - n,
+        right: i + a / 2 + n,
+        top: s - o / 2 - n,
+        bottom: s + o / 2 + n
       };
       for (const r of t) {
         const l = {
@@ -317,11 +322,11 @@ class F {
       return !1;
     };
     this.shapes.forEach((i) => {
-      const s = this.formatElementLabel(i.type), a = this.getContrastColor(i.color), n = i.width * 0.8, o = i.height * 0.4;
-      let h = Math.min(o, 24);
+      const s = this.formatElementLabel(i.type), a = this.getContrastColor(i.color), o = i.width * 0.8, n = i.height * 0.4;
+      let h = Math.min(n, 24);
       h = Math.max(h, 8), this.ctx.font = `${h}px "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace`;
       let r = this.ctx.measureText(s).width;
-      for (; r > n && h > 8; )
+      for (; r > o && h > 8; )
         h -= 1, this.ctx.font = `${h}px "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace`, r = this.ctx.measureText(s).width;
       if (h >= 8 && i.width >= 30 && i.height >= 16) {
         const l = i.x + i.width / 2, d = i.y + i.height / 2, x = h;
@@ -339,19 +344,19 @@ class F {
   drawBorderOutlines() {
     this.shapes.forEach((t) => {
       if (!t.hasBorder) return;
-      const e = 2, i = t.x + e, s = t.y + e, a = t.width - e * 2, n = t.height - e * 2;
-      if (a <= 0 || n <= 0) return;
+      const e = 2, i = t.x + e, s = t.y + e, a = t.width - e * 2, o = t.height - e * 2;
+      if (a <= 0 || o <= 0) return;
       this.ctx.save(), this.ctx.strokeStyle = "rgba(60, 60, 60, 0.6)", this.ctx.lineWidth = 2, this.ctx.setLineDash([6, 4]);
-      const o = Math.min(4, a / 4, n / 4);
-      this.ctx.beginPath(), this.ctx.moveTo(i + o, s), this.ctx.lineTo(i + a - o, s), this.ctx.quadraticCurveTo(i + a, s, i + a, s + o), this.ctx.lineTo(i + a, s + n - o), this.ctx.quadraticCurveTo(i + a, s + n, i + a - o, s + n), this.ctx.lineTo(i + o, s + n), this.ctx.quadraticCurveTo(i, s + n, i, s + n - o), this.ctx.lineTo(i, s + o), this.ctx.quadraticCurveTo(i, s, i + o, s), this.ctx.closePath(), this.ctx.stroke(), this.ctx.restore();
+      const n = Math.min(4, a / 4, o / 4);
+      this.ctx.beginPath(), this.ctx.moveTo(i + n, s), this.ctx.lineTo(i + a - n, s), this.ctx.quadraticCurveTo(i + a, s, i + a, s + n), this.ctx.lineTo(i + a, s + o - n), this.ctx.quadraticCurveTo(i + a, s + o, i + a - n, s + o), this.ctx.lineTo(i + n, s + o), this.ctx.quadraticCurveTo(i, s + o, i, s + o - n), this.ctx.lineTo(i, s + n), this.ctx.quadraticCurveTo(i, s, i + n, s), this.ctx.closePath(), this.ctx.stroke(), this.ctx.restore();
     });
   }
   drawTextPlaceholders() {
     this.ctx.save(), this.shapes.forEach((t) => {
       !t.hasText || t.textLines.length === 0 || t.textLines.forEach((e) => {
         this.ctx.fillStyle = "rgba(40, 40, 40, 0.6)";
-        const i = e.height * 0.75, s = (e.height - i) / 2, a = Math.min(3, i / 4), n = e.x, o = e.y + s, h = e.width, r = i;
-        this.ctx.beginPath(), this.ctx.moveTo(n + a, o), this.ctx.lineTo(n + h - a, o), this.ctx.quadraticCurveTo(n + h, o, n + h, o + a), this.ctx.lineTo(n + h, o + r - a), this.ctx.quadraticCurveTo(n + h, o + r, n + h - a, o + r), this.ctx.lineTo(n + a, o + r), this.ctx.quadraticCurveTo(n, o + r, n, o + r - a), this.ctx.lineTo(n, o + a), this.ctx.quadraticCurveTo(n, o, n + a, o), this.ctx.closePath(), this.ctx.fill();
+        const i = e.height * 0.75, s = (e.height - i) / 2, a = Math.min(3, i / 4), o = e.x, n = e.y + s, h = e.width, r = i;
+        this.ctx.beginPath(), this.ctx.moveTo(o + a, n), this.ctx.lineTo(o + h - a, n), this.ctx.quadraticCurveTo(o + h, n, o + h, n + a), this.ctx.lineTo(o + h, n + r - a), this.ctx.quadraticCurveTo(o + h, n + r, o + h - a, n + r), this.ctx.lineTo(o + a, n + r), this.ctx.quadraticCurveTo(o, n + r, o, n + r - a), this.ctx.lineTo(o, n + a), this.ctx.quadraticCurveTo(o, n, o + a, n), this.ctx.closePath(), this.ctx.fill();
       });
     }), this.ctx.restore();
   }
@@ -361,15 +366,15 @@ class F {
   addTexture() {
     const t = this.canvas.width, e = this.canvas.height, i = this.ctx.getImageData(0, 0, t, e), s = i.data;
     for (let a = 0; a < s.length; a += 4) {
-      const n = (Math.random() - 0.5) * 30;
-      s[a] = Math.max(0, Math.min(255, s[a] + n)), s[a + 1] = Math.max(0, Math.min(255, s[a + 1] + n)), s[a + 2] = Math.max(0, Math.min(255, s[a + 2] + n));
+      const o = (Math.random() - 0.5) * 30;
+      s[a] = Math.max(0, Math.min(255, s[a] + o)), s[a + 1] = Math.max(0, Math.min(255, s[a + 1] + o)), s[a + 2] = Math.max(0, Math.min(255, s[a + 2] + o));
     }
     this.ctx.putImageData(i, 0, 0), this.ctx.strokeStyle = "rgba(255, 255, 255, 0.1)", this.ctx.lineWidth = 1;
     for (let a = 0; a < e; a += 3)
       Math.random() > 0.5 && (this.ctx.beginPath(), this.ctx.moveTo(0, a), this.ctx.lineTo(t, a), this.ctx.stroke());
     for (let a = 0; a < 500; a++) {
-      const n = Math.random() * t, o = Math.random() * e, h = Math.random() * 2;
-      this.ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.5})`, this.ctx.beginPath(), this.ctx.arc(n, o, h, 0, Math.PI * 2), this.ctx.fill();
+      const o = Math.random() * t, n = Math.random() * e, h = Math.random() * 2;
+      this.ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.5})`, this.ctx.beginPath(), this.ctx.arc(o, n, h, 0, Math.PI * 2), this.ctx.fill();
     }
   }
   bindEvents() {
@@ -409,10 +414,10 @@ class F {
     }
   }
   hasPaintAt(t, e) {
-    const i = Math.max(4, Math.floor(this.scratchRadius / 3)), s = Math.max(0, Math.floor(t - i / 2)), a = Math.max(0, Math.floor(e - i / 2)), n = Math.min(i, this.canvas.width - s), o = Math.min(i, this.canvas.height - a);
-    if (n <= 0 || o <= 0) return !1;
+    const i = Math.max(4, Math.floor(this.scratchRadius / 3)), s = Math.max(0, Math.floor(t - i / 2)), a = Math.max(0, Math.floor(e - i / 2)), o = Math.min(i, this.canvas.width - s), n = Math.min(i, this.canvas.height - a);
+    if (o <= 0 || n <= 0) return !1;
     try {
-      const r = this.ctx.getImageData(s, a, n, o).data;
+      const r = this.ctx.getImageData(s, a, o, n).data;
       for (let l = 3; l < r.length; l += 4)
         if (r[l] > 0)
           return !0;
@@ -428,34 +433,34 @@ class F {
       viewport_width: window.innerWidth,
       viewport_height: window.innerHeight
     })), this.scratchCount++;
-    const a = this.hasPaintAt(t, e), n = t - i, o = e - s;
+    const a = this.hasPaintAt(t, e), o = t - i, n = e - s;
     let h;
-    Math.abs(o) > Math.abs(n) ? h = o > 0 ? "down" : "up" : h = n > 0 ? "right" : "left";
+    Math.abs(n) > Math.abs(o) ? h = n > 0 ? "down" : "up" : h = o > 0 ? "right" : "left";
     const r = this.lastScratchDirection !== null && this.lastScratchDirection !== h;
     r && this.scratchDirectionChangeCount++, this.lastScratchDirection = h, a && (this.playScratchSound(r), this.createParticles(t, e)), this.ctx.globalCompositeOperation = "destination-out", this.drawIrregularLine(this.ctx, i, s, t, e), this.drawIrregularScratch(this.ctx, t, e), this.ctx.globalCompositeOperation = "source-over", this.scratchCtx.fillStyle = "#000000", this.drawIrregularLine(this.scratchCtx, i, s, t, e), this.drawIrregularScratch(this.scratchCtx, t, e), Math.random() < 0.1 && this.checkProgress();
   }
   drawIrregularScratch(t, e, i) {
-    const s = 8 + Math.floor(Math.random() * 5), a = Math.PI * 2 / s, n = Math.random() * Math.PI * 2;
+    const s = 8 + Math.floor(Math.random() * 5), a = Math.PI * 2 / s, o = Math.random() * Math.PI * 2;
     t.beginPath();
-    for (let o = 0; o <= s; o++) {
-      const h = n + o * a, r = 0.7 + Math.random() * 0.3, l = this.scratchRadius * r, d = e + Math.cos(h) * l, x = i + Math.sin(h) * l;
-      o === 0 ? t.moveTo(d, x) : t.lineTo(d, x);
+    for (let n = 0; n <= s; n++) {
+      const h = o + n * a, r = 0.7 + Math.random() * 0.3, l = this.scratchRadius * r, d = e + Math.cos(h) * l, x = i + Math.sin(h) * l;
+      n === 0 ? t.moveTo(d, x) : t.lineTo(d, x);
     }
     t.closePath(), t.fill();
   }
   drawIrregularLine(t, e, i, s, a) {
-    const n = s - e, o = a - i, h = Math.sqrt(n * n + o * o);
+    const o = s - e, n = a - i, h = Math.sqrt(o * o + n * n);
     if (h < 1) return;
-    const r = -o / h, l = n / h, d = Math.max(4, Math.floor(h / 8)), x = [];
+    const r = -n / h, l = o / h, d = Math.max(4, Math.floor(h / 8)), x = [];
     for (let f = 0; f <= d; f++) {
-      const p = f / d, g = e + n * p, C = i + o * p, v = 0.8 + Math.random() * 0.3, m = this.scratchRadius * v;
+      const p = f / d, g = e + o * p, C = i + n * p, v = 0.8 + Math.random() * 0.3, m = this.scratchRadius * v;
       x.push({
         x: g + r * m,
         y: C + l * m
       });
     }
     for (let f = d; f >= 0; f--) {
-      const p = f / d, g = e + n * p, C = i + o * p, v = 0.8 + Math.random() * 0.3, m = this.scratchRadius * v;
+      const p = f / d, g = e + o * p, C = i + n * p, v = 0.8 + Math.random() * 0.3, m = this.scratchRadius * v;
       x.push({
         x: g - r * m,
         y: C - l * m
@@ -469,15 +474,15 @@ class F {
   createParticles(t, e) {
     const i = 3 + Math.floor(Math.random() * 5);
     for (let s = 0; s < i; s++) {
-      const a = Math.random() * Math.PI * 2, n = 2 + Math.random() * 4, o = ["#C0C0C0", "#A8A8A8", "#B8B8B8", "#D0D0D0", "#909090"];
+      const a = Math.random() * Math.PI * 2, o = 2 + Math.random() * 4, n = ["#C0C0C0", "#A8A8A8", "#B8B8B8", "#D0D0D0", "#909090"];
       this.particles.push({
         x: t + (Math.random() - 0.5) * this.scratchRadius,
         y: e + (Math.random() - 0.5) * this.scratchRadius,
-        vx: Math.cos(a) * n,
-        vy: Math.sin(a) * n + 5,
+        vx: Math.cos(a) * o,
+        vy: Math.sin(a) * o + 5,
         // Stronger downward bias for faster fall
         size: 2 + Math.random() * 4,
-        color: o[Math.floor(Math.random() * o.length)],
+        color: n[Math.floor(Math.random() * n.length)],
         rotation: Math.random() * Math.PI * 2,
         rotationSpeed: (Math.random() - 0.5) * 0.3,
         life: 1,
@@ -512,19 +517,19 @@ class F {
   playScratchSound(t = !1) {
     if (this.ensureAudioInitialized(), !this.audioContext)
       return;
-    const e = 0.02 + Math.random() * 0.015, i = this.audioContext.sampleRate, s = Math.floor(i * e), a = this.audioContext.createBuffer(1, s, i), n = a.getChannelData(0);
+    const e = 0.02 + Math.random() * 0.015, i = this.audioContext.sampleRate, s = Math.floor(i * e), a = this.audioContext.createBuffer(1, s, i), o = a.getChannelData(0);
     for (let f = 0; f < s; f++) {
       const p = f / s, g = Math.pow(Math.sin(p * Math.PI), 1.5);
-      n[f] = (Math.random() * 2 - 1) * 0.15 * g;
+      o[f] = (Math.random() * 2 - 1) * 0.15 * g;
     }
-    const o = this.audioContext.createBufferSource();
-    o.buffer = a;
+    const n = this.audioContext.createBufferSource();
+    n.buffer = a;
     const h = t ? 1800 : 1200, r = t ? 600 : 400, l = this.audioContext.createBiquadFilter();
     l.type = "bandpass", l.frequency.value = h + Math.random() * r, l.Q.value = t ? 1.2 : 0.8;
     const d = this.audioContext.createBiquadFilter();
     d.type = "lowpass", d.frequency.value = 2500, d.Q.value = 0.5;
     const x = this.audioContext.createGain();
-    x.gain.value = t ? 0.04 : 0.025, o.connect(l), l.connect(d), d.connect(x), x.connect(this.audioContext.destination), o.start();
+    x.gain.value = t ? 0.04 : 0.025, n.connect(l), l.connect(d), d.connect(x), x.connect(this.audioContext.destination), n.start();
   }
   checkProgress() {
     const e = this.scratchCtx.getImageData(
@@ -534,16 +539,16 @@ class F {
       this.scratchCanvas.height
     ).data;
     let i = 0;
-    for (let o = 0; o < e.length; o += 400)
-      e[o] === 0 && i++;
-    const s = Math.floor(e.length / 400), a = i / s, n = [25, 50, 75];
-    for (const o of n) {
-      const h = o / 100;
-      if (a >= h && !this.progressMilestonesReached.has(o)) {
-        this.progressMilestonesReached.add(o);
+    for (let n = 0; n < e.length; n += 400)
+      e[n] === 0 && i++;
+    const s = Math.floor(e.length / 400), a = i / s, o = [25, 50, 75];
+    for (const n of o) {
+      const h = n / 100;
+      if (a >= h && !this.progressMilestonesReached.has(n)) {
+        this.progressMilestonesReached.add(n);
         const r = this.sessionStartTime > 0 ? Date.now() - this.sessionStartTime : 0;
         T.trackEvent("scratch_progress", {
-          progress_percent: o,
+          progress_percent: n,
           elapsed_time_ms: r,
           scratch_count: this.scratchCount,
           device_type: this.deviceType
@@ -560,12 +565,12 @@ class F {
       { x: t * 0.3, y: e * 0.5 },
       { x: t * 0.7, y: e * 0.5 }
     ];
-    for (const n of a)
-      for (let o = 0; o < 30; o++) {
+    for (const o of a)
+      for (let n = 0; n < 30; n++) {
         const h = Math.random() * Math.PI * 2, r = 3 + Math.random() * 8;
         this.confetti.push({
-          x: n.x + (Math.random() - 0.5) * 100,
-          y: n.y + (Math.random() - 0.5) * 50,
+          x: o.x + (Math.random() - 0.5) * 100,
+          y: o.y + (Math.random() - 0.5) * 50,
           vx: Math.cos(h) * r,
           vy: Math.sin(h) * r - 5,
           // Initial upward burst
@@ -645,8 +650,8 @@ class F {
   playWinSound() {
     if (this.ensureAudioInitialized(), !this.audioContext) return;
     const t = (e, i, s) => {
-      const a = this.audioContext.createOscillator(), n = this.audioContext.createGain();
-      a.type = "sine", a.frequency.value = e, n.gain.setValueAtTime(0, this.audioContext.currentTime + i), n.gain.linearRampToValueAtTime(0.3, this.audioContext.currentTime + i + 0.05), n.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + i + s), a.connect(n), n.connect(this.audioContext.destination), a.start(this.audioContext.currentTime + i), a.stop(this.audioContext.currentTime + i + s);
+      const a = this.audioContext.createOscillator(), o = this.audioContext.createGain();
+      a.type = "sine", a.frequency.value = e, o.gain.setValueAtTime(0, this.audioContext.currentTime + i), o.gain.linearRampToValueAtTime(0.3, this.audioContext.currentTime + i + 0.05), o.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + i + s), a.connect(o), o.connect(this.audioContext.destination), a.start(this.audioContext.currentTime + i), a.stop(this.audioContext.currentTime + i + s);
     };
     t(523.25, 0, 0.2), t(659.25, 0.15, 0.2), t(783.99, 0.3, 0.2), t(1046.5, 0.45, 0.4);
   }
@@ -678,7 +683,7 @@ class F {
     this.updateParticles(), this.updateConfetti(), this.drawParticles(), this.drawConfetti(), this.animationId = requestAnimationFrame(() => this.animate());
   }
 }
-new F();
+new L();
 export {
-  F as ScratchOff
+  L as ScratchOff
 };
