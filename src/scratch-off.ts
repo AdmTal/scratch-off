@@ -141,6 +141,7 @@ interface ElementShape {
 interface TouchState {
   lastX: number;
   lastY: number;
+  cursorElement: HTMLDivElement;
 }
 
 class ScratchOff {
@@ -339,6 +340,24 @@ class ScratchOff {
     } catch {
       // Audio not supported
     }
+  }
+
+  private createTouchCursorElement(): HTMLDivElement {
+    const cursor = document.createElement('div');
+    // Use the small mobile coin size (32x32)
+    cursor.style.cssText = `
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      pointer-events: none;
+      z-index: 1000002;
+      transform: translate(-50%, -50%);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='18' rx='14' ry='10' fill='%23B8860B'/%3E%3Cellipse cx='16' cy='14' rx='14' ry='10' fill='%23FFD700'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='%23FFA500'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='url(%23shine)'/%3E%3Ctext x='16' y='17' font-family='Arial' font-size='10' font-weight='bold' fill='%23B8860B' text-anchor='middle'%3E%24%3C/text%3E%3Cdefs%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FFE66D;stop-opacity:0.8'/%3E%3Cstop offset='50%25' style='stop-color:%23FFD700;stop-opacity:0'/%3E%3Cstop offset='100%25' style='stop-color:%23B8860B;stop-opacity:0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+    `;
+    document.body.appendChild(cursor);
+    return cursor;
   }
 
   private detectElements(): void {
@@ -927,9 +946,15 @@ class ScratchOff {
     // Process all new touches
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
+      // Create visual cursor element for this touch
+      const cursorElement = this.createTouchCursorElement();
+      cursorElement.style.left = `${touch.clientX}px`;
+      cursorElement.style.top = `${touch.clientY}px`;
+
       const touchState: TouchState = {
         lastX: touch.clientX,
-        lastY: touch.clientY
+        lastY: touch.clientY,
+        cursorElement
       };
       this.activeTouches.set(touch.identifier, touchState);
       this.scratch(touch.clientX, touch.clientY, touchState.lastX, touchState.lastY);
@@ -943,6 +968,10 @@ class ScratchOff {
       const touch = e.changedTouches[i];
       const touchState = this.activeTouches.get(touch.identifier);
       if (touchState) {
+        // Update cursor position
+        touchState.cursorElement.style.left = `${touch.clientX}px`;
+        touchState.cursorElement.style.top = `${touch.clientY}px`;
+
         this.scratch(touch.clientX, touch.clientY, touchState.lastX, touchState.lastY);
         touchState.lastX = touch.clientX;
         touchState.lastY = touch.clientY;
@@ -952,9 +981,13 @@ class ScratchOff {
 
   private handleTouchEnd(e: TouchEvent): void {
     e.preventDefault();
-    // Remove ended touches
+    // Remove ended touches and their cursor elements
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
+      const touchState = this.activeTouches.get(touch.identifier);
+      if (touchState && touchState.cursorElement.parentNode) {
+        touchState.cursorElement.parentNode.removeChild(touchState.cursorElement);
+      }
       this.activeTouches.delete(touch.identifier);
     }
   }
@@ -1562,6 +1595,14 @@ class ScratchOff {
     if (overlay && overlay.parentNode) {
       overlay.parentNode.removeChild(overlay);
     }
+
+    // Remove any remaining touch cursor elements
+    this.activeTouches.forEach((touchState) => {
+      if (touchState.cursorElement.parentNode) {
+        touchState.cursorElement.parentNode.removeChild(touchState.cursorElement);
+      }
+    });
+    this.activeTouches.clear();
 
     // Restore scrolling
     document.body.style.overflow = '';
