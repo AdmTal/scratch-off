@@ -73,3 +73,63 @@ This document contains the prompts used to create this project with AI assistanc
 - README documentation
 
 ---
+
+## Prompt 2
+
+**Date:** 2024-12-14
+
+**Prompt:**
+
+> Fix the particle trails - they're leaving artifacts. Also improve the flake physics and sounds. And add labels to the elements.
+
+**Result:** Fixed particle trail artifacts, improved flake physics with more natural falling behavior, enhanced scratch sound effects, and added element type labels to the scratch-off shapes.
+
+---
+
+## Prompt 3
+
+**Date:** 2024-12-14
+
+**Prompt:**
+
+> The flakes are still leaving trails. Fix it by pre-computing the shape offsets.
+
+**Result:** Fixed flake trail artifacts by pre-computing shape offsets, ensuring clean rendering without visual artifacts.
+
+---
+
+## Prompt 4
+
+**Date:** 2024-12-14
+
+**Prompt:**
+
+> Rewrite the README. Cut the fluff - make it more casual and to the point.
+
+**Result:** Rewrote README with a more casual, direct tone. Removed verbose explanations and kept it simple.
+
+---
+
+## Prompt 5
+
+**Date:** 2024-12-14
+
+**Prompt:**
+
+> Add visual guides to the scratch-off layer - dotted borders around elements and text placeholders so users can see what's underneath.
+
+**Result:** Added visual guides including dotted borders around detected elements and text placeholders, giving users hints about the content underneath the scratch-off layer.
+
+---
+
+## Prompt 6
+
+**Date:** 2024-12-14
+
+**Prompt:**
+
+> You have not been updating the prompt history? Why not? Please update or add an agents.md or whatever, informing of this requirement. Also, review the other threads we've already done, and update the prompt history.
+
+**Result:** Created `agents.md` documenting the requirement for AI agents to update prompt_history.md after every task. Backfilled prompt history with entries for all previous work (Prompts 2-5).
+
+---
