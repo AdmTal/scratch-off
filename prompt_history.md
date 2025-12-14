@@ -80,7 +80,11 @@ This document contains the prompts used to create this project with AI assistanc
 
 **Prompt:**
 
-> Fix the particle trails - they're leaving artifacts. Also improve the flake physics and sounds. And add labels to the elements.
+> The particles, the don't look right. They should not leave trails. Currently they are leaving trails that don't go away. And the flakes should prob drop faster, and themselves look a little more jagged, currently they are just circles I think.
+> Also the scratchy sounds, they are too "long".
+> They should be short, and a tad quieter. And the sound should change a bit if I'm changing directions.
+> Like if I'm going up down up down to clear flakes, it should sound like scritch scratch scritch scratch. Currently it's like scraaaaaaatch. Idk how to engineer that, perhaps every group of flakes somehow generates a sound that is aggregated or something. That's prob overkill.
+> And on the shapes, I actually think it would be neat to see the element names. So there should be in the center of each shape like "<h1 />" or whatever it is, in whatever font color is required to maintain accessible contrast from its background while also looking good.
 
 **Result:** Fixed particle trail artifacts, improved flake physics with more natural falling behavior, enhanced scratch sound effects, and added element type labels to the scratch-off shapes.
 
@@ -92,7 +96,7 @@ This document contains the prompts used to create this project with AI assistanc
 
 **Prompt:**
 
-> The flakes are still leaving trails. Fix it by pre-computing the shape offsets.
+> The flakes are leaving trails that do not go away, it's ruining the effect.
 
 **Result:** Fixed flake trail artifacts by pre-computing shape offsets, ensuring clean rendering without visual artifacts.
 
@@ -104,7 +108,14 @@ This document contains the prompts used to create this project with AI assistanc
 
 **Prompt:**
 
-> Rewrite the README. Cut the fluff - make it more casual and to the point.
+> Revise the readme, as per my writing style:
+> "
+> Direct. Impatient. No bullshit.
+> You write like you talk — short sentences, casual punctuation, typos left in because fixing them would slow you down. You skip the setup and get to the point.
+> You're funny when you're not trying to be. Self-deprecating but confident. You'll call something "garbage" or admit you're "desperate" without it feeling like a pity play.
+> You hate fluff. When I give you something too long or too polished, you cut it or ask for shorter. You want it tight.
+> Builder energy. You'd rather ship something imperfect than wordsmith it to death.
+> "
 
 **Result:** Rewrote README with a more casual, direct tone. Removed verbose explanations and kept it simple.
 
@@ -116,7 +127,9 @@ This document contains the prompts used to create this project with AI assistanc
 
 **Prompt:**
 
-> Add visual guides to the scratch-off layer - dotted borders around elements and text placeholders so users can see what's underneath.
+> I want to see more outlines and stuff in the scratch off paint layer.
+> Perhaps, can we see dotted outlines of anything with a border?
+> Also, anywhere there is text, I'd like to see placeholder boxes like: █ █ █
 
 **Result:** Added visual guides including dotted borders around detected elements and text placeholders, giving users hints about the content underneath the scratch-off layer.
 
