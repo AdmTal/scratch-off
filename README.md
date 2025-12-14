@@ -10,7 +10,7 @@ Users scratch to reveal your content. It's dumb and delightful.
 - Works on phones and desktop
 - Makes scratchy sounds
 - Little paint flakes fall off as you scratch
-- Auto-reveals at ~90% scratched
+- Auto-reveals at ~60% scratched
 - Zero dependencies
 
 ## Install
@@ -39,7 +39,7 @@ That's it. It auto-runs.
 2. Throws a scratch layer on top
 3. User scratches
 4. Particles fall
-5. 90% scratched = overlay fades
+5. 60% scratched = overlay fades
 
 ## Dev stuff
 
