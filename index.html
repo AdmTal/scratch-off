@@ -21,7 +21,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       min-height: 100vh;
       padding: 40px 20px;
     }
@@ -37,33 +37,40 @@
     }
 
     h1 {
-      color: white;
+      color: #FFD700;
       font-size: 3rem;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     }
 
     .tagline {
-      color: rgba(255,255,255,0.9);
-      font-size: 1.25rem;
+      color: rgba(255,255,255,0.95);
+      font-size: 1.4rem;
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .tagline strong {
+      color: #FFD700;
     }
 
     .card {
-      background: white;
+      background: rgba(255,255,255,0.95);
       border-radius: 16px;
       padding: 30px;
       margin-bottom: 24px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
 
     .card h2 {
-      color: #333;
+      color: #1a1a2e;
       margin-bottom: 15px;
       font-size: 1.5rem;
     }
 
     .card p {
-      color: #666;
+      color: #444;
       line-height: 1.7;
       margin-bottom: 15px;
     }
@@ -76,7 +83,7 @@
     }
 
     .feature {
-      background: #f8f9fa;
+      background: #f0f0f5;
       padding: 20px;
       border-radius: 12px;
       text-align: center;
@@ -88,122 +95,138 @@
     }
 
     .feature h3 {
-      color: #333;
+      color: #1a1a2e;
       font-size: 1rem;
       margin-bottom: 8px;
     }
 
     .feature p {
-      color: #888;
+      color: #666;
       font-size: 0.9rem;
       margin: 0;
     }
 
-    .cta-button {
-      display: inline-block;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 15px 40px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1.1rem;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-    }
-
     .code-block {
-      background: #1e1e1e;
-      color: #d4d4d4;
+      background: #0d1117;
+      color: #c9d1d9;
       padding: 20px;
       border-radius: 8px;
-      font-family: 'Monaco', 'Menlo', monospace;
+      font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
       font-size: 0.9rem;
       overflow-x: auto;
+      border: 1px solid #30363d;
     }
 
     footer {
       text-align: center;
-      color: rgba(255,255,255,0.7);
+      color: rgba(255,255,255,0.8);
       margin-top: 40px;
       padding: 20px;
     }
 
     footer a {
-      color: white;
+      color: #FFD700;
+      text-decoration: none;
     }
 
-    .hero-image {
-      width: 100%;
-      max-width: 400px;
-      height: 200px;
-      background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
-      border-radius: 12px;
-      margin: 20px auto;
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .other-projects {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .other-projects h3 {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .project-links {
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
       justify-content: center;
-      color: white;
-      font-size: 1.5rem;
-      font-weight: bold;
+      gap: 15px;
+    }
+
+    .project-links a {
+      color: rgba(255,255,255,0.85);
+      font-size: 0.95rem;
+    }
+
+    .social-links {
+      margin-top: 15px;
+    }
+
+    .social-links a {
+      margin: 0 10px;
+      color: rgba(255,255,255,0.7);
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Scratch-Off</h1>
-      <p class="tagline">covers your site in lottery ticket gunk. scratch to reveal.</p>
+      <h1>Scratch-Off.js</h1>
+      <p class="tagline">Transform your site into a <strong>scratch-off lottery ticket</strong> with one line of JavaScript.</p>
     </header>
 
     <div class="card">
-      <h2>you're looking at it</h2>
-      <p>this whole page is covered. scratch it off with your mouse. or finger. whatever.</p>
-      <p>get ~90% and it fades away on its own. satisfying.</p>
-      <div class="hero-image">scratch here dummy</div>
+      <h2>Try it now</h2>
+      <p>This entire page is covered in scratch-off material. Use your mouse (or finger on mobile) to scratch it away. Hit ~90% and it auto-reveals.</p>
     </div>
 
     <div class="card">
-      <h2>what you get</h2>
+      <h2>Features</h2>
       <div class="features">
         <div class="feature">
-          <div class="feature-icon">🎨</div>
-          <h3>looks real</h3>
-          <p>actually looks like a lottery ticket</p>
+          <div class="feature-icon">🪙</div>
+          <h3>Realistic Coin Cursor</h3>
+          <p>Golden coin that scratches like the real thing</p>
         </div>
         <div class="feature">
           <div class="feature-icon">📱</div>
-          <h3>works on phones</h3>
-          <p>touch works fine</p>
+          <h3>Touch Support</h3>
+          <p>Works on desktop and mobile</p>
         </div>
         <div class="feature">
           <div class="feature-icon">🔊</div>
-          <h3>sounds</h3>
-          <p>that scratchy noise. you know the one.</p>
+          <h3>Scratch Sounds</h3>
+          <p>Satisfying audio feedback</p>
         </div>
         <div class="feature">
           <div class="feature-icon">✨</div>
-          <h3>particles</h3>
-          <p>little paint flakes fall off</p>
+          <h3>Particle Effects</h3>
+          <p>Paint flakes fall as you scratch</p>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h2>installation</h2>
-      <p>one script tag. thats it.</p>
-      <div class="code-block">
-        &lt;script src="https://your-site.netlify.app/scratch-off.iife.js"&gt;&lt;/script&gt;
-      </div>
+      <h2>One Line Install</h2>
+      <div class="code-block">&lt;script src="https://scratchoff.netlify.app/scratch-off.iife.js"&gt;&lt;/script&gt;</div>
     </div>
 
     <footer>
-      <p>typescript + canvas. nothing fancy.</p>
-      <p><a href="https://github.com">github</a></p>
+      <p>Built by <a href="https://github.com/admtal">Adam Tal</a></p>
+
+      <div class="other-projects">
+        <h3>Other projects by Adam</h3>
+        <div class="project-links">
+          <a href="https://lazytetris.com">LazyTetris.com</a>
+          <a href="https://passwordbasket.com">PasswordBasket.com</a>
+          <a href="https://demoscope.app">DemoScope.app</a>
+        </div>
+        <div class="social-links">
+          <a href="https://github.com/admtal">GitHub</a>
+          <a href="https://www.linkedin.com/in/admtal/">LinkedIn</a>
+        </div>
+      </div>
     </footer>
   </div>
 

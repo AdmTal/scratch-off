@@ -157,6 +157,7 @@ class ScratchOff {
   private mouseLastY = 0;
   private activeTouches: Map<number, TouchState> = new Map();
   private scratchRadius = 30;
+  private isDesktop = false;
   private totalPixels = 0;
   private scratchedPixels = 0;
   private fadeThreshold = 0.90;
@@ -168,8 +169,11 @@ class ScratchOff {
   private baseColor = '#C0C0C0';
   private accentColors = ['#A8A8A8', '#B8B8B8', '#D0D0D0', '#BEBEBE'];
   private lastScratchDirection: 'up' | 'down' | 'left' | 'right' | null = null;
-  // Coin cursor SVG (golden coin)
-  private coinCursor = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='18' rx='14' ry='10' fill='%23B8860B'/%3E%3Cellipse cx='16' cy='14' rx='14' ry='10' fill='%23FFD700'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='%23FFA500'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='url(%23shine)'/%3E%3Ctext x='16' y='17' font-family='Arial' font-size='10' font-weight='bold' fill='%23B8860B' text-anchor='middle'%3E%24%3C/text%3E%3Cdefs%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FFE66D;stop-opacity:0.8'/%3E%3Cstop offset='50%25' style='stop-color:%23FFD700;stop-opacity:0'/%3E%3Cstop offset='100%25' style='stop-color:%23B8860B;stop-opacity:0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E") 16 16, crosshair`;
+  // Coin cursor SVG (golden coin) - small version for mobile (32x32)
+  private coinCursorSmall = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='18' rx='14' ry='10' fill='%23B8860B'/%3E%3Cellipse cx='16' cy='14' rx='14' ry='10' fill='%23FFD700'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='%23FFA500'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='url(%23shine)'/%3E%3Ctext x='16' y='17' font-family='Arial' font-size='10' font-weight='bold' fill='%23B8860B' text-anchor='middle'%3E%24%3C/text%3E%3Cdefs%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FFE66D;stop-opacity:0.8'/%3E%3Cstop offset='50%25' style='stop-color:%23FFD700;stop-opacity:0'/%3E%3Cstop offset='100%25' style='stop-color:%23B8860B;stop-opacity:0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E") 16 16, crosshair`;
+  // Large version for desktop (96x96 = 3x size)
+  private coinCursorLarge = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cellipse cx='48' cy='54' rx='42' ry='30' fill='%23B8860B'/%3E%3Cellipse cx='48' cy='42' rx='42' ry='30' fill='%23FFD700'/%3E%3Cellipse cx='48' cy='42' rx='33' ry='21' fill='%23FFA500'/%3E%3Cellipse cx='48' cy='42' rx='33' ry='21' fill='url(%23shine)'/%3E%3Ctext x='48' y='51' font-family='Arial' font-size='30' font-weight='bold' fill='%23B8860B' text-anchor='middle'%3E%24%3C/text%3E%3Cdefs%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FFE66D;stop-opacity:0.8'/%3E%3Cstop offset='50%25' style='stop-color:%23FFD700;stop-opacity:0'/%3E%3Cstop offset='100%25' style='stop-color:%23B8860B;stop-opacity:0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E") 48 48, crosshair`;
+  private coinCursor = this.coinCursorSmall;
   private scratchDirectionChangeCount = 0;
   // Analytics tracking state
   private hasStartedScratching = false;
@@ -202,6 +206,24 @@ class ScratchOff {
   private setup(): void {
     const width = window.innerWidth;
     const height = window.innerHeight;
+
+    // Detect if this is a desktop device (non-mobile)
+    // Use multiple signals: no touch support, larger screen, and no mobile user agent
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isLargeScreen = window.innerWidth >= 768;
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // Desktop = large screen without mobile user agent (touch capability alone doesn't disqualify - laptops have touch)
+    this.isDesktop = isLargeScreen && !isMobileUA;
+
+    // Set coin cursor and scratch radius based on device type
+    if (this.isDesktop) {
+      this.coinCursor = this.coinCursorLarge;
+      this.scratchRadius = 90; // 3x the mobile size (30 * 3)
+    } else {
+      this.coinCursor = this.coinCursorSmall;
+      this.scratchRadius = 30;
+    }
 
     // Setup main canvas
     this.canvas.width = width;
