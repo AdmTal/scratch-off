@@ -1383,6 +1383,8 @@ class ScratchOff {
         font-weight: bold;
         color: #FFD700;
         text-shadow: 0 0 20px #FFD700, 0 0 40px #FFA500, 0 0 60px #FF6347, 3px 3px 0 #B8860B;
+        -webkit-text-stroke: 5px black;
+        paint-order: stroke fill;
         animation: winnerGlow 1s ease-in-out infinite;
         letter-spacing: 8px;
       ">WINNER!</div>
