@@ -1,7 +1,7 @@
 var A = Object.defineProperty;
 var F = (u, t, e) => t in u ? A(u, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : u[t] = e;
 var c = (u, t, e) => F(u, typeof t != "symbol" ? t + "" : t, e);
-const E = "G-552PMDLPMQ", T = {
+const b = "G-552PMDLPMQ", T = {
   initialized: !1,
   /**
    * Initialize Google Analytics if not already present
@@ -13,9 +13,9 @@ const E = "G-552PMDLPMQ", T = {
       window.dataLayer.push(e);
     }), !document.querySelector('script[src*="googletagmanager.com/gtag/js"]')) {
       const t = document.createElement("script");
-      t.async = !0, t.src = `https://www.googletagmanager.com/gtag/js?id=${E}`, document.head.appendChild(t);
+      t.async = !0, t.src = `https://www.googletagmanager.com/gtag/js?id=${b}`, document.head.appendChild(t);
     }
-    window.gtag("js", /* @__PURE__ */ new Date()), window.gtag("config", E, {
+    window.gtag("js", /* @__PURE__ */ new Date()), window.gtag("config", b, {
       // Don't send automatic page view - we'll send our own with host info
       send_page_view: !1
     }), this.trackEvent("page_view", {
@@ -147,6 +147,20 @@ class L {
       }
     }
   }
+  createTouchCursorElement() {
+    const t = document.createElement("div");
+    return t.style.cssText = `
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      pointer-events: none;
+      z-index: 1000002;
+      transform: translate(-50%, -50%);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='18' rx='14' ry='10' fill='%23B8860B'/%3E%3Cellipse cx='16' cy='14' rx='14' ry='10' fill='%23FFD700'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='%23FFA500'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='url(%23shine)'/%3E%3Ctext x='16' y='17' font-family='Arial' font-size='10' font-weight='bold' fill='%23B8860B' text-anchor='middle'%3E%24%3C/text%3E%3Cdefs%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FFE66D;stop-opacity:0.8'/%3E%3Cstop offset='50%25' style='stop-color:%23FFD700;stop-opacity:0'/%3E%3Cstop offset='100%25' style='stop-color:%23B8860B;stop-opacity:0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+    `, document.body.appendChild(t), t;
+  }
   detectElements() {
     const t = document.body.querySelectorAll("*"), e = window.innerWidth, i = window.innerHeight;
     let s = 0;
@@ -154,35 +168,35 @@ class L {
       if (a === this.canvas) return;
       const o = a.getBoundingClientRect();
       if (o.width > 0 && o.height > 0 && o.top < i && o.bottom > 0 && o.left < e && o.right > 0) {
-        const n = a.tagName.toLowerCase(), h = window.getComputedStyle(a);
-        if (h.display === "none" || h.visibility === "hidden")
+        const n = a.tagName.toLowerCase(), r = window.getComputedStyle(a);
+        if (r.display === "none" || r.visibility === "hidden")
           return;
-        let r = this.getShapeColor(n, h);
-        const l = parseFloat(h.borderTopWidth) || 0, d = parseFloat(h.borderRightWidth) || 0, x = parseFloat(h.borderBottomWidth) || 0, f = parseFloat(h.borderLeftWidth) || 0, p = l + d + x + f > 0, g = h.borderColor || "#888888";
-        let C = !1, v = 0, m = [], b = parseFloat(h.fontSize) || 16, S = parseFloat(h.lineHeight) || b * 1.2;
+        let h = this.getShapeColor(n, r);
+        const l = parseFloat(r.borderTopWidth) || 0, d = parseFloat(r.borderRightWidth) || 0, x = parseFloat(r.borderBottomWidth) || 0, f = parseFloat(r.borderLeftWidth) || 0, p = l + d + x + f > 0, g = r.borderColor || "#888888";
+        let C = !1, v = 0, m = [], M = parseFloat(r.fontSize) || 16, S = parseFloat(r.lineHeight) || M * 1.2;
         if (["p", "span", "h1", "h2", "h3", "h4", "h5", "h6", "li", "a", "button", "label", "td", "th", "strong", "em", "code", "pre"].includes(n)) {
-          const M = Array.from(a.childNodes).filter((y) => {
+          const E = Array.from(a.childNodes).filter((y) => {
             var w;
             return y.nodeType === Node.TEXT_NODE && ((w = y.textContent) == null ? void 0 : w.trim());
           });
-          M.length > 0 && (C = !0, v = M.map((y) => {
+          E.length > 0 && (C = !0, v = E.map((y) => {
             var w;
             return ((w = y.textContent) == null ? void 0 : w.trim()) || "";
-          }).join("").length, m = this.getTextLineRects(a, M));
+          }).join("").length, m = this.getTextLineRects(a, E));
         }
         this.isSignificantElement(n, o) && this.shapes.push({
           x: Math.max(0, o.left),
           y: Math.max(0, o.top),
           width: Math.min(o.width, e - o.left),
           height: Math.min(o.height, i - o.top),
-          color: r,
+          color: h,
           type: n,
           hasBorder: p,
           borderColor: g,
           hasText: C,
           textLength: v,
           textLines: m,
-          fontSize: b,
+          fontSize: M,
           lineHeight: S,
           domIndex: s++
         });
@@ -238,20 +252,20 @@ class L {
       a.textContent, s.selectNodeContents(a);
       const o = s.getClientRects();
       for (let n = 0; n < o.length; n++) {
-        const h = o[n];
-        if (h.width > 5 && h.height > 5) {
-          const r = i.find(
-            (l) => Math.abs(l.y - h.top) < h.height * 0.5
+        const r = o[n];
+        if (r.width > 5 && r.height > 5) {
+          const h = i.find(
+            (l) => Math.abs(l.y - r.top) < r.height * 0.5
           );
-          if (r) {
-            const l = Math.min(r.x, h.left), d = Math.max(r.x + r.width, h.right);
-            r.x = l, r.width = d - l;
+          if (h) {
+            const l = Math.min(h.x, r.left), d = Math.max(h.x + h.width, r.right);
+            h.x = l, h.width = d - l;
           } else
             i.push({
-              x: h.left,
-              y: h.top,
-              width: h.width,
-              height: h.height
+              x: r.left,
+              y: r.top,
+              width: r.width,
+              height: r.height
             });
         }
       }
@@ -303,39 +317,39 @@ class L {
   drawElementLabels() {
     this.ctx.textAlign = "center", this.ctx.textBaseline = "middle";
     const t = [], e = (i, s, a, o, n = 4) => {
-      const h = {
+      const r = {
         left: i - a / 2 - n,
         right: i + a / 2 + n,
         top: s - o / 2 - n,
         bottom: s + o / 2 + n
       };
-      for (const r of t) {
+      for (const h of t) {
         const l = {
-          left: r.x - r.width / 2,
-          right: r.x + r.width / 2,
-          top: r.y - r.height / 2,
-          bottom: r.y + r.height / 2
+          left: h.x - h.width / 2,
+          right: h.x + h.width / 2,
+          top: h.y - h.height / 2,
+          bottom: h.y + h.height / 2
         };
-        if (!(h.right < l.left || h.left > l.right || h.bottom < l.top || h.top > l.bottom))
+        if (!(r.right < l.left || r.left > l.right || r.bottom < l.top || r.top > l.bottom))
           return !0;
       }
       return !1;
     };
     this.shapes.forEach((i) => {
       const s = this.formatElementLabel(i.type), a = this.getContrastColor(i.color), o = i.width * 0.8, n = i.height * 0.4;
-      let h = Math.min(n, 24);
-      h = Math.max(h, 8), this.ctx.font = `${h}px "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace`;
-      let r = this.ctx.measureText(s).width;
-      for (; r > o && h > 8; )
-        h -= 1, this.ctx.font = `${h}px "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace`, r = this.ctx.measureText(s).width;
-      if (h >= 8 && i.width >= 30 && i.height >= 16) {
-        const l = i.x + i.width / 2, d = i.y + i.height / 2, x = h;
-        if (e(l, d, r, x))
+      let r = Math.min(n, 24);
+      r = Math.max(r, 8), this.ctx.font = `${r}px "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace`;
+      let h = this.ctx.measureText(s).width;
+      for (; h > o && r > 8; )
+        r -= 1, this.ctx.font = `${r}px "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace`, h = this.ctx.measureText(s).width;
+      if (r >= 8 && i.width >= 30 && i.height >= 16) {
+        const l = i.x + i.width / 2, d = i.y + i.height / 2, x = r;
+        if (e(l, d, h, x))
           return;
         this.ctx.fillStyle = a, this.ctx.fillText(s, l, d), t.push({
           x: l,
           y: d,
-          width: r,
+          width: h,
           height: x
         });
       }
@@ -355,8 +369,8 @@ class L {
     this.ctx.save(), this.shapes.forEach((t) => {
       !t.hasText || t.textLines.length === 0 || t.textLines.forEach((e) => {
         this.ctx.fillStyle = "rgba(40, 40, 40, 0.6)";
-        const i = e.height * 0.75, s = (e.height - i) / 2, a = Math.min(3, i / 4), o = e.x, n = e.y + s, h = e.width, r = i;
-        this.ctx.beginPath(), this.ctx.moveTo(o + a, n), this.ctx.lineTo(o + h - a, n), this.ctx.quadraticCurveTo(o + h, n, o + h, n + a), this.ctx.lineTo(o + h, n + r - a), this.ctx.quadraticCurveTo(o + h, n + r, o + h - a, n + r), this.ctx.lineTo(o + a, n + r), this.ctx.quadraticCurveTo(o, n + r, o, n + r - a), this.ctx.lineTo(o, n + a), this.ctx.quadraticCurveTo(o, n, o + a, n), this.ctx.closePath(), this.ctx.fill();
+        const i = e.height * 0.75, s = (e.height - i) / 2, a = Math.min(3, i / 4), o = e.x, n = e.y + s, r = e.width, h = i;
+        this.ctx.beginPath(), this.ctx.moveTo(o + a, n), this.ctx.lineTo(o + r - a, n), this.ctx.quadraticCurveTo(o + r, n, o + r, n + a), this.ctx.lineTo(o + r, n + h - a), this.ctx.quadraticCurveTo(o + r, n + h, o + r - a, n + h), this.ctx.lineTo(o + a, n + h), this.ctx.quadraticCurveTo(o, n + h, o, n + h - a), this.ctx.lineTo(o, n + a), this.ctx.quadraticCurveTo(o, n, o + a, n), this.ctx.closePath(), this.ctx.fill();
       });
     }), this.ctx.restore();
   }
@@ -373,8 +387,8 @@ class L {
     for (let a = 0; a < e; a += 3)
       Math.random() > 0.5 && (this.ctx.beginPath(), this.ctx.moveTo(0, a), this.ctx.lineTo(t, a), this.ctx.stroke());
     for (let a = 0; a < 500; a++) {
-      const o = Math.random() * t, n = Math.random() * e, h = Math.random() * 2;
-      this.ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.5})`, this.ctx.beginPath(), this.ctx.arc(o, n, h, 0, Math.PI * 2), this.ctx.fill();
+      const o = Math.random() * t, n = Math.random() * e, r = Math.random() * 2;
+      this.ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.5})`, this.ctx.beginPath(), this.ctx.arc(o, n, r, 0, Math.PI * 2), this.ctx.fill();
     }
   }
   bindEvents() {
@@ -392,34 +406,37 @@ class L {
   handleTouchStart(t) {
     t.preventDefault(), this.deviceType = "touch";
     for (let e = 0; e < t.changedTouches.length; e++) {
-      const i = t.changedTouches[e], s = {
+      const i = t.changedTouches[e], s = this.createTouchCursorElement();
+      s.style.left = `${i.clientX}px`, s.style.top = `${i.clientY}px`;
+      const a = {
         lastX: i.clientX,
-        lastY: i.clientY
+        lastY: i.clientY,
+        cursorElement: s
       };
-      this.activeTouches.set(i.identifier, s), this.scratch(i.clientX, i.clientY, s.lastX, s.lastY);
+      this.activeTouches.set(i.identifier, a), this.scratch(i.clientX, i.clientY, a.lastX, a.lastY);
     }
   }
   handleTouchMove(t) {
     t.preventDefault();
     for (let e = 0; e < t.changedTouches.length; e++) {
       const i = t.changedTouches[e], s = this.activeTouches.get(i.identifier);
-      s && (this.scratch(i.clientX, i.clientY, s.lastX, s.lastY), s.lastX = i.clientX, s.lastY = i.clientY);
+      s && (s.cursorElement.style.left = `${i.clientX}px`, s.cursorElement.style.top = `${i.clientY}px`, this.scratch(i.clientX, i.clientY, s.lastX, s.lastY), s.lastX = i.clientX, s.lastY = i.clientY);
     }
   }
   handleTouchEnd(t) {
     t.preventDefault();
     for (let e = 0; e < t.changedTouches.length; e++) {
-      const i = t.changedTouches[e];
-      this.activeTouches.delete(i.identifier);
+      const i = t.changedTouches[e], s = this.activeTouches.get(i.identifier);
+      s && s.cursorElement.parentNode && s.cursorElement.parentNode.removeChild(s.cursorElement), this.activeTouches.delete(i.identifier);
     }
   }
   hasPaintAt(t, e) {
     const i = Math.max(4, Math.floor(this.scratchRadius / 3)), s = Math.max(0, Math.floor(t - i / 2)), a = Math.max(0, Math.floor(e - i / 2)), o = Math.min(i, this.canvas.width - s), n = Math.min(i, this.canvas.height - a);
     if (o <= 0 || n <= 0) return !1;
     try {
-      const r = this.ctx.getImageData(s, a, o, n).data;
-      for (let l = 3; l < r.length; l += 4)
-        if (r[l] > 0)
+      const h = this.ctx.getImageData(s, a, o, n).data;
+      for (let l = 3; l < h.length; l += 4)
+        if (h[l] > 0)
           return !0;
     } catch {
       return !0;
@@ -434,35 +451,35 @@ class L {
       viewport_height: window.innerHeight
     })), this.scratchCount++;
     const a = this.hasPaintAt(t, e), o = t - i, n = e - s;
-    let h;
-    Math.abs(n) > Math.abs(o) ? h = n > 0 ? "down" : "up" : h = o > 0 ? "right" : "left";
-    const r = this.lastScratchDirection !== null && this.lastScratchDirection !== h;
-    r && this.scratchDirectionChangeCount++, this.lastScratchDirection = h, a && (this.playScratchSound(r), this.createParticles(t, e)), this.ctx.globalCompositeOperation = "destination-out", this.drawIrregularLine(this.ctx, i, s, t, e), this.drawIrregularScratch(this.ctx, t, e), this.ctx.globalCompositeOperation = "source-over", this.scratchCtx.fillStyle = "#000000", this.drawIrregularLine(this.scratchCtx, i, s, t, e), this.drawIrregularScratch(this.scratchCtx, t, e), Math.random() < 0.1 && this.checkProgress();
+    let r;
+    Math.abs(n) > Math.abs(o) ? r = n > 0 ? "down" : "up" : r = o > 0 ? "right" : "left";
+    const h = this.lastScratchDirection !== null && this.lastScratchDirection !== r;
+    h && this.scratchDirectionChangeCount++, this.lastScratchDirection = r, a && (this.playScratchSound(h), this.createParticles(t, e)), this.ctx.globalCompositeOperation = "destination-out", this.drawIrregularLine(this.ctx, i, s, t, e), this.drawIrregularScratch(this.ctx, t, e), this.ctx.globalCompositeOperation = "source-over", this.scratchCtx.fillStyle = "#000000", this.drawIrregularLine(this.scratchCtx, i, s, t, e), this.drawIrregularScratch(this.scratchCtx, t, e), Math.random() < 0.1 && this.checkProgress();
   }
   drawIrregularScratch(t, e, i) {
     const s = 8 + Math.floor(Math.random() * 5), a = Math.PI * 2 / s, o = Math.random() * Math.PI * 2;
     t.beginPath();
     for (let n = 0; n <= s; n++) {
-      const h = o + n * a, r = 0.7 + Math.random() * 0.3, l = this.scratchRadius * r, d = e + Math.cos(h) * l, x = i + Math.sin(h) * l;
+      const r = o + n * a, h = 0.7 + Math.random() * 0.3, l = this.scratchRadius * h, d = e + Math.cos(r) * l, x = i + Math.sin(r) * l;
       n === 0 ? t.moveTo(d, x) : t.lineTo(d, x);
     }
     t.closePath(), t.fill();
   }
   drawIrregularLine(t, e, i, s, a) {
-    const o = s - e, n = a - i, h = Math.sqrt(o * o + n * n);
-    if (h < 1) return;
-    const r = -n / h, l = o / h, d = Math.max(4, Math.floor(h / 8)), x = [];
+    const o = s - e, n = a - i, r = Math.sqrt(o * o + n * n);
+    if (r < 1) return;
+    const h = -n / r, l = o / r, d = Math.max(4, Math.floor(r / 8)), x = [];
     for (let f = 0; f <= d; f++) {
       const p = f / d, g = e + o * p, C = i + n * p, v = 0.8 + Math.random() * 0.3, m = this.scratchRadius * v;
       x.push({
-        x: g + r * m,
+        x: g + h * m,
         y: C + l * m
       });
     }
     for (let f = d; f >= 0; f--) {
       const p = f / d, g = e + o * p, C = i + n * p, v = 0.8 + Math.random() * 0.3, m = this.scratchRadius * v;
       x.push({
-        x: g - r * m,
+        x: g - h * m,
         y: C - l * m
       });
     }
@@ -524,8 +541,8 @@ class L {
     }
     const n = this.audioContext.createBufferSource();
     n.buffer = a;
-    const h = t ? 1800 : 1200, r = t ? 600 : 400, l = this.audioContext.createBiquadFilter();
-    l.type = "bandpass", l.frequency.value = h + Math.random() * r, l.Q.value = t ? 1.2 : 0.8;
+    const r = t ? 1800 : 1200, h = t ? 600 : 400, l = this.audioContext.createBiquadFilter();
+    l.type = "bandpass", l.frequency.value = r + Math.random() * h, l.Q.value = t ? 1.2 : 0.8;
     const d = this.audioContext.createBiquadFilter();
     d.type = "lowpass", d.frequency.value = 2500, d.Q.value = 0.5;
     const x = this.audioContext.createGain();
@@ -543,13 +560,13 @@ class L {
       e[n] === 0 && i++;
     const s = Math.floor(e.length / 400), a = i / s, o = [25, 50, 75];
     for (const n of o) {
-      const h = n / 100;
-      if (a >= h && !this.progressMilestonesReached.has(n)) {
+      const r = n / 100;
+      if (a >= r && !this.progressMilestonesReached.has(n)) {
         this.progressMilestonesReached.add(n);
-        const r = this.sessionStartTime > 0 ? Date.now() - this.sessionStartTime : 0;
+        const h = this.sessionStartTime > 0 ? Date.now() - this.sessionStartTime : 0;
         T.trackEvent("scratch_progress", {
           progress_percent: n,
-          elapsed_time_ms: r,
+          elapsed_time_ms: h,
           scratch_count: this.scratchCount,
           device_type: this.deviceType
         });
@@ -567,12 +584,12 @@ class L {
     ];
     for (const o of a)
       for (let n = 0; n < 30; n++) {
-        const h = Math.random() * Math.PI * 2, r = 3 + Math.random() * 8;
+        const r = Math.random() * Math.PI * 2, h = 3 + Math.random() * 8;
         this.confetti.push({
           x: o.x + (Math.random() - 0.5) * 100,
           y: o.y + (Math.random() - 0.5) * 50,
-          vx: Math.cos(h) * r,
-          vy: Math.sin(h) * r - 5,
+          vx: Math.cos(r) * h,
+          vy: Math.sin(r) * h - 5,
           // Initial upward burst
           size: 6 + Math.random() * 8,
           color: i[Math.floor(Math.random() * i.length)],
@@ -677,7 +694,9 @@ class L {
   cleanup() {
     this.animationId && cancelAnimationFrame(this.animationId), this.canvas.parentNode && this.canvas.parentNode.removeChild(this.canvas), this.particleCanvas.parentNode && this.particleCanvas.parentNode.removeChild(this.particleCanvas);
     const t = document.getElementById("winner-overlay");
-    t && t.parentNode && t.parentNode.removeChild(t), document.body.style.overflow = "", this.audioContext && this.audioContext.close();
+    t && t.parentNode && t.parentNode.removeChild(t), this.activeTouches.forEach((e) => {
+      e.cursorElement.parentNode && e.cursorElement.parentNode.removeChild(e.cursorElement);
+    }), this.activeTouches.clear(), document.body.style.overflow = "", this.audioContext && this.audioContext.close();
   }
   animate() {
     this.updateParticles(), this.updateConfetti(), this.drawParticles(), this.drawConfetti(), this.animationId = requestAnimationFrame(() => this.animate());
