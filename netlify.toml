@@ -1,5 +1,5 @@
 [build]
-  command = "npm install && npm run build"
+  command = "npm install && npm run build && cd npm-test && npm install && npm run build && mkdir -p ../dist/npm-test && cp -r dist/* ../dist/npm-test/"
   publish = "dist"
 
 [build.environment]
@@ -52,4 +52,10 @@
 [[redirects]]
   from = "/demo"
   to = "/index.html"
+  status = 200
+
+# Serve the NPM test page
+[[redirects]]
+  from = "/npm-test"
+  to = "/npm-test/index.html"
   status = 200

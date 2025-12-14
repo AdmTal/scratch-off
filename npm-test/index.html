@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NPM Package Test - scratch-off</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .badge {
+      display: inline-block;
+      background: #22c55e;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+    .card {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 15px;
+    }
+    .card p {
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+    code {
+      background: rgba(0,0,0,0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace;
+    }
+    pre {
+      background: rgba(0,0,0,0.4);
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-top: 15px;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .feature {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      opacity: 0.7;
+      font-size: 0.875rem;
+    }
+    footer a {
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>scratch-off</h1>
+    <span class="badge">NPM Package Test</span>
+
+    <div class="card">
+      <h2>Package Successfully Loaded!</h2>
+      <p>
+        This page demonstrates that the <code>scratch-off</code> package
+        was successfully installed from NPM and bundled with Vite.
+      </p>
+      <p style="margin-top: 15px;">
+        The scratch-off overlay should now be covering this page.
+        Use your mouse or finger to scratch and reveal the content!
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Installation</h2>
+      <pre><code>npm install scratch-off</code></pre>
+    </div>
+
+    <div class="card">
+      <h2>Usage</h2>
+      <pre><code>// ES Module
+import { ScratchOff } from 'scratch-off';
+
+// The effect auto-initializes on import!
+// Or create a new instance manually:
+new ScratchOff();</code></pre>
+    </div>
+
+    <div class="card">
+      <h2>Features</h2>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">🎨</div>
+          <div>Canvas-based rendering</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📱</div>
+          <div>Touch support</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔊</div>
+          <div>Sound effects</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🎉</div>
+          <div>Confetti celebration</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        <a href="https://github.com/AdmTal/scratch-off" target="_blank">GitHub</a> ·
+        <a href="https://www.npmjs.com/package/scratch-off" target="_blank">NPM</a>
+      </p>
+    </footer>
+  </div>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

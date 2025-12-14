@@ -2,6 +2,7 @@
 node_modules/
 
 # Build output (dist is committed for easy distribution)
+npm-test/dist/
 
 # IDE
 .idea/
