@@ -181,6 +181,33 @@ class ScratchOff {
   private sessionStartTime = 0;
   private scratchCount = 0;
   private deviceType: 'mouse' | 'touch' = 'mouse';
+  // Random lottery ticket titles
+  private readonly ticketTitles = [
+    'MEGA MILLIONS',
+    'CASH BLAST',
+    'LUCKY 7s',
+    'GOLD RUSH',
+    'TRIPLE JACKPOT',
+    'DIAMOND MINE',
+    'FAST CASH',
+    'SET FOR LIFE',
+    'WILD CHERRY CROSSWORD',
+    'CASH EXPLOSION',
+    'LUCKY STREAK',
+    'MONEY BAGS',
+    'GOLDEN TICKET',
+    '5X THE CASH',
+    'RUBY RICHES',
+    'INSTANT MILLIONAIRE',
+    'CASH FRENZY',
+    'TRIPLE 777',
+    '20X THE MONEY',
+    'WINNER WINNER',
+    'CASH CACHE',
+    'LUCKY RELOAD',
+    'PAGE OF FORTUNE'
+  ];
+  private ticketTitle: string;
 
   constructor() {
     this.canvas = document.createElement('canvas');
@@ -189,6 +216,9 @@ class ScratchOff {
     this.scratchCtx = this.scratchCanvas.getContext('2d')!;
     this.particleCanvas = document.createElement('canvas');
     this.particleCtx = this.particleCanvas.getContext('2d')!;
+
+    // Select a random ticket title
+    this.ticketTitle = this.ticketTitles[Math.floor(Math.random() * this.ticketTitles.length)];
 
     this.init();
   }
@@ -258,6 +288,7 @@ class ScratchOff {
       height: 100%;
       z-index: 1000000;
       pointer-events: none;
+      cursor: ${this.coinCursor};
     `;
 
     this.totalPixels = width * height;
@@ -574,15 +605,15 @@ class ScratchOff {
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
     this.ctx.fillStyle = '#FFD700';
-    this.ctx.fillText('MEGA WEB JACKPOT', width / 2, headerHeight / 2 - 2);
+    this.ctx.fillText(this.ticketTitle, width / 2, headerHeight / 2 - 2);
 
-    // Stars decorations
+    // Stars decorations (positioned further out to avoid overlapping with title)
     this.ctx.font = '18px Arial';
-    this.ctx.fillText('★', width / 2 - 140, headerHeight / 2);
-    this.ctx.fillText('★', width / 2 + 140, headerHeight / 2);
+    this.ctx.fillText('★', width / 2 - 155, headerHeight / 2);
+    this.ctx.fillText('★', width / 2 + 155, headerHeight / 2);
     this.ctx.font = '14px Arial';
-    this.ctx.fillText('✦', width / 2 - 160, headerHeight / 2);
-    this.ctx.fillText('✦', width / 2 + 160, headerHeight / 2);
+    this.ctx.fillText('✦', width / 2 - 175, headerHeight / 2);
+    this.ctx.fillText('✦', width / 2 + 175, headerHeight / 2);
 
     // Serial number (top right)
     const serialNumber = this.generateSerialNumber();
