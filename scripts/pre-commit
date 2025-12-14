@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Pre-commit hook: Rebuild dist and stage changes
+# This ensures dist files are always in sync with source
+
+# Check if source files are being committed
+if git diff --cached --name-only | grep -qE '\.(ts|js|html|css)$'; then
+    echo "Source files changed, rebuilding dist..."
+
+    # Run build
+    npm run build
+
+    if [ $? -ne 0 ]; then
+        echo "Build failed! Please fix errors before committing."
+        exit 1
+    fi
+
+    # Stage the updated dist files
+    git add dist/
+
+    echo "dist/ rebuilt and staged."
+fi
+
+exit 0

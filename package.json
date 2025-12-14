@@ -13,7 +13,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "build:lib": "vite build --mode lib"
+    "build:lib": "vite build --mode lib",
+    "prepare": "cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit"
   },
   "keywords": [
     "scratch-off",
