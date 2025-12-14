@@ -6,6 +6,13 @@
   "main": "dist/scratch-off.umd.cjs",
   "module": "dist/scratch-off.js",
   "types": "dist/scratch-off.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/scratch-off.js",
+      "require": "./dist/scratch-off.umd.cjs",
+      "types": "./dist/scratch-off.d.ts"
+    }
+  },
   "files": [
     "dist"
   ],
@@ -21,10 +28,21 @@
     "lottery",
     "interactive",
     "animation",
-    "canvas"
+    "canvas",
+    "reveal",
+    "gamification",
+    "scratch-card"
   ],
-  "author": "",
+  "author": "AdmTal",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdmTal/scratch-off.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AdmTal/scratch-off/issues"
+  },
+  "homepage": "https://github.com/AdmTal/scratch-off#readme",
   "devDependencies": {
     "typescript": "^5.3.3",
     "vite": "^5.0.10"
