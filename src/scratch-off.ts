@@ -160,7 +160,7 @@ class ScratchOff {
   private isDesktop = false;
   private totalPixels = 0;
   private scratchedPixels = 0;
-  private fadeThreshold = 0.90;
+  private fadeThreshold = 0.60;
   private isFading = false;
   private audioContext: AudioContext | null = null;
   private audioInitialized = false;
