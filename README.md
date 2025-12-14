@@ -1,113 +1,64 @@
 # Scratch-Off
 
-Turn any website into a scratch-off lottery ticket experience! This JavaScript library creates an interactive scratch-off layer over your webpage that visitors can scratch away to reveal the content underneath.
+Drop a script tag on any page. Boom — it's a lottery ticket now.
 
-## Features
+Users scratch to reveal your content. It's dumb and delightful.
 
-- **Realistic lottery ticket texture** - Authentic silver scratch-off appearance with subtle noise and metallic sheen
-- **Smart element detection** - Automatically detects page elements and creates simplified shape representations
-- **Touch & mouse support** - Works seamlessly on both desktop and mobile devices
-- **Satisfying scratch sounds** - Audio feedback when scratching (uses Web Audio API)
-- **Falling particle effects** - Paint flakes crumble and drift down naturally
-- **Auto-reveal** - Fades away automatically when ~90% is scratched off
-- **Zero dependencies** - Pure TypeScript/JavaScript, no external libraries required
+## What you get
 
-## Installation
+- Looks like a real scratch ticket (silver, shiny, the whole thing)
+- Works on phones and desktop
+- Makes scratchy sounds
+- Little paint flakes fall off as you scratch
+- Auto-reveals at ~90% scratched
+- Zero dependencies
 
-### Via Script Tag (Recommended)
+## Install
 
-Just add a single script tag to your HTML page:
+Script tag. Done.
 
 ```html
 <script src="https://your-netlify-site.netlify.app/scratch-off.iife.js"></script>
 ```
 
-The library will automatically initialize and create the scratch-off layer over your page.
-
-### Via NPM
+Or npm if that's your thing:
 
 ```bash
 npm install scratch-off
 ```
 
-Then import in your JavaScript:
-
 ```javascript
 import 'scratch-off';
 ```
 
-Or if you want more control:
+That's it. It auto-runs.
 
-```javascript
-import { ScratchOff } from 'scratch-off';
-const scratcher = new ScratchOff();
-```
+## How it works
 
-## How It Works
+1. Scans your page
+2. Throws a scratch layer on top
+3. User scratches
+4. Particles fall
+5. 90% scratched = overlay fades
 
-1. When the page loads, the library scans visible elements in the viewport
-2. Creates a canvas overlay with a silver scratch-off texture
-3. Draws simplified shapes representing each detected element (headers, paragraphs, images, etc.)
-4. Users can scratch with mouse drag or touch gestures
-5. Paint particles fall off realistically as you scratch
-6. When 90% is scratched, the overlay fades away revealing the full page
-
-## Browser Support
-
-- Chrome 60+
-- Firefox 55+
-- Safari 11+
-- Edge 79+
-- Mobile Safari (iOS 11+)
-- Chrome for Android
-
-## Development
-
-### Setup
+## Dev stuff
 
 ```bash
-npm install
+npm install        # setup
+npm run dev        # dev server
+npm run build      # build it
 ```
 
-### Run Development Server
+Outputs to `dist/` in a few formats (ES, UMD, IIFE).
 
-```bash
-npm run dev
-```
+## Browser support
 
-### Build for Production
-
-```bash
-npm run build
-```
-
-This will output the library in multiple formats to the `dist/` folder:
-- `scratch-off.js` - ES Module
-- `scratch-off.umd.cjs` - UMD format
-- `scratch-off.iife.js` - Immediately Invoked Function Expression (for script tags)
-
-## Customization
-
-Currently the library auto-initializes with default settings. Future versions may include configuration options for:
-
-- Custom scratch radius
-- Threshold percentage for auto-reveal
-- Custom colors and textures
-- Sound enable/disable
-- Particle effects toggle
-
-## Technical Details
-
-- Built with TypeScript
-- Uses HTML5 Canvas for rendering
-- Web Audio API for scratch sounds
-- RequestAnimationFrame for smooth particle animations
-- Composite operations for efficient scratch reveal
+Modern browsers. You're fine.
 
 ## License
 
 MIT
 
-## Prompt History
+## History
 
-This project was created with AI assistance. See [prompt_history.md](./prompt_history.md) for the full conversation history and prompts used during development.
+Built with AI. See [prompt_history.md](./prompt_history.md) if you're curious.
