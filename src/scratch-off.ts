@@ -98,6 +98,22 @@ interface Particle {
   shapeOffsets: number[];
 }
 
+interface ConfettiParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  color: string;
+  rotation: number;
+  rotationSpeed: number;
+  wobble: number;
+  wobbleSpeed: number;
+  life: number;
+  maxLife: number;
+  shape: 'square' | 'circle' | 'strip';
+}
+
 interface TextLineInfo {
   x: number;
   y: number;
@@ -134,6 +150,8 @@ class ScratchOff {
   private particleCanvas: HTMLCanvasElement;
   private particleCtx: CanvasRenderingContext2D;
   private particles: Particle[] = [];
+  private confetti: ConfettiParticle[] = [];
+  private showingWinner = false;
   private isMouseScratching = false;
   private mouseLastX = 0;
   private mouseLastY = 0;
@@ -150,6 +168,8 @@ class ScratchOff {
   private baseColor = '#C0C0C0';
   private accentColors = ['#A8A8A8', '#B8B8B8', '#D0D0D0', '#BEBEBE'];
   private lastScratchDirection: 'up' | 'down' | 'left' | 'right' | null = null;
+  // Coin cursor SVG (golden coin)
+  private coinCursor = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='18' rx='14' ry='10' fill='%23B8860B'/%3E%3Cellipse cx='16' cy='14' rx='14' ry='10' fill='%23FFD700'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='%23FFA500'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='url(%23shine)'/%3E%3Ctext x='16' y='17' font-family='Arial' font-size='10' font-weight='bold' fill='%23B8860B' text-anchor='middle'%3E%24%3C/text%3E%3Cdefs%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FFE66D;stop-opacity:0.8'/%3E%3Cstop offset='50%25' style='stop-color:%23FFD700;stop-opacity:0'/%3E%3Cstop offset='100%25' style='stop-color:%23B8860B;stop-opacity:0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E") 16 16, crosshair`;
   private scratchDirectionChangeCount = 0;
   // Analytics tracking state
   private hasStartedScratching = false;
@@ -193,7 +213,7 @@ class ScratchOff {
       width: 100%;
       height: 100%;
       z-index: 999999;
-      cursor: crosshair;
+      cursor: ${this.coinCursor};
       touch-action: none;
     `;
 
@@ -481,6 +501,9 @@ class ScratchOff {
     // Add scratch-off texture overlay
     this.addTexture();
 
+    // Draw lottery ticket decorations (header, instructions, footer)
+    this.drawLotteryDecorations();
+
     // Draw element labels on shapes
     this.drawElementLabels();
 
@@ -493,9 +516,132 @@ class ScratchOff {
     this.scratchCtx.fillRect(0, 0, width, height);
   }
 
+  private generateSerialNumber(): string {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let serial = '';
+    for (let i = 0; i < 12; i++) {
+      if (i === 4 || i === 8) serial += '-';
+      serial += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return serial;
+  }
+
+  private drawLotteryDecorations(): void {
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+
+    // Draw header banner
+    const headerHeight = 50;
+    this.ctx.fillStyle = 'rgba(80, 60, 20, 0.85)';
+    this.ctx.fillRect(0, 0, width, headerHeight);
+
+    // Draw gold gradient border at bottom of header
+    const gradient = this.ctx.createLinearGradient(0, headerHeight - 4, 0, headerHeight);
+    gradient.addColorStop(0, '#FFD700');
+    gradient.addColorStop(0.5, '#FFA500');
+    gradient.addColorStop(1, '#B8860B');
+    this.ctx.fillStyle = gradient;
+    this.ctx.fillRect(0, headerHeight - 4, width, 4);
+
+    // Main title
+    this.ctx.font = 'bold 24px "Arial Black", "Impact", sans-serif';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillStyle = '#FFD700';
+    this.ctx.fillText('MEGA WEB JACKPOT', width / 2, headerHeight / 2 - 2);
+
+    // Stars decorations
+    this.ctx.font = '18px Arial';
+    this.ctx.fillText('★', width / 2 - 140, headerHeight / 2);
+    this.ctx.fillText('★', width / 2 + 140, headerHeight / 2);
+    this.ctx.font = '14px Arial';
+    this.ctx.fillText('✦', width / 2 - 160, headerHeight / 2);
+    this.ctx.fillText('✦', width / 2 + 160, headerHeight / 2);
+
+    // Serial number (top right)
+    const serialNumber = this.generateSerialNumber();
+    this.ctx.font = '10px "Courier New", monospace';
+    this.ctx.textAlign = 'right';
+    this.ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
+    this.ctx.fillText(`SN: ${serialNumber}`, width - 15, 15);
+
+    // Instructions below header
+    this.ctx.font = 'bold 14px Arial, sans-serif';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillStyle = 'rgba(60, 60, 60, 0.9)';
+    this.ctx.fillText('Match 3 <div>s to WIN!', width / 2, headerHeight + 22);
+
+    // Draw footer area
+    const footerY = height - 30;
+
+    // "Odds of winning" text (bottom left)
+    this.ctx.font = '9px Arial, sans-serif';
+    this.ctx.textAlign = 'left';
+    this.ctx.fillStyle = 'rgba(80, 80, 80, 0.7)';
+    this.ctx.fillText('Odds of winning: 1 in 1', 15, footerY + 10);
+
+    // "Must be 18+" text (bottom center)
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText('Must be 18+ to browse this website', width / 2, footerY + 10);
+
+    // "VOID IF TAMPERED" watermark (diagonal, faint)
+    this.ctx.save();
+    this.ctx.translate(width / 2, height / 2);
+    this.ctx.rotate(-Math.PI / 6); // -30 degrees
+    this.ctx.font = 'bold 48px Arial, sans-serif';
+    this.ctx.fillStyle = 'rgba(100, 100, 100, 0.08)';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillText('VOID IF TAMPERED', 0, 0);
+    this.ctx.restore();
+
+    // Draw corner decorations (dollar signs)
+    this.ctx.font = 'bold 20px Arial, sans-serif';
+    this.ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+    this.ctx.textAlign = 'left';
+    this.ctx.fillText('$', 10, headerHeight + 50);
+    this.ctx.textAlign = 'right';
+    this.ctx.fillText('$', width - 10, headerHeight + 50);
+    this.ctx.textAlign = 'left';
+    this.ctx.fillText('$', 10, height - 50);
+    this.ctx.textAlign = 'right';
+    this.ctx.fillText('$', width - 10, height - 50);
+  }
+
   private drawElementLabels(): void {
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
+
+    // Track drawn label bounding boxes to prevent overlap
+    const drawnLabels: { x: number; y: number; width: number; height: number }[] = [];
+
+    // Helper function to check if a new label would overlap with existing ones
+    const wouldOverlap = (x: number, y: number, width: number, height: number, padding: number = 4): boolean => {
+      const newBox = {
+        left: x - width / 2 - padding,
+        right: x + width / 2 + padding,
+        top: y - height / 2 - padding,
+        bottom: y + height / 2 + padding
+      };
+
+      for (const label of drawnLabels) {
+        const existingBox = {
+          left: label.x - label.width / 2,
+          right: label.x + label.width / 2,
+          top: label.y - label.height / 2,
+          bottom: label.y + label.height / 2
+        };
+
+        // Check for intersection
+        if (!(newBox.right < existingBox.left ||
+              newBox.left > existingBox.right ||
+              newBox.bottom < existingBox.top ||
+              newBox.top > existingBox.bottom)) {
+          return true; // Overlaps
+        }
+      }
+      return false;
+    };
 
     this.shapes.forEach(shape => {
       const label = this.formatElementLabel(shape.type);
@@ -524,9 +670,23 @@ class ScratchOff {
       if (fontSize >= 8 && shape.width >= 30 && shape.height >= 16) {
         const centerX = shape.x + shape.width / 2;
         const centerY = shape.y + shape.height / 2;
+        const textHeight = fontSize;
+
+        // Skip this label if it would overlap with an already drawn label
+        if (wouldOverlap(centerX, centerY, textWidth, textHeight)) {
+          return; // Skip drawing this label
+        }
 
         this.ctx.fillStyle = textColor;
         this.ctx.fillText(label, centerX, centerY);
+
+        // Record this label's position
+        drawnLabels.push({
+          x: centerX,
+          y: centerY,
+          width: textWidth,
+          height: textHeight
+        });
       }
     });
   }
@@ -1088,6 +1248,189 @@ class ScratchOff {
     }
   }
 
+  private createConfettiBurst(): void {
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+    const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE'];
+    const shapes: ('square' | 'circle' | 'strip')[] = ['square', 'circle', 'strip'];
+
+    // Create confetti from multiple points
+    const burstPoints = [
+      { x: width * 0.2, y: height * 0.3 },
+      { x: width * 0.5, y: height * 0.2 },
+      { x: width * 0.8, y: height * 0.3 },
+      { x: width * 0.3, y: height * 0.5 },
+      { x: width * 0.7, y: height * 0.5 },
+    ];
+
+    for (const point of burstPoints) {
+      for (let i = 0; i < 30; i++) {
+        const angle = (Math.random() * Math.PI * 2);
+        const speed = 3 + Math.random() * 8;
+
+        this.confetti.push({
+          x: point.x + (Math.random() - 0.5) * 100,
+          y: point.y + (Math.random() - 0.5) * 50,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 5, // Initial upward burst
+          size: 6 + Math.random() * 8,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * Math.PI * 2,
+          rotationSpeed: (Math.random() - 0.5) * 0.3,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: 0.05 + Math.random() * 0.1,
+          life: 0,
+          maxLife: 150 + Math.random() * 100,
+          shape: shapes[Math.floor(Math.random() * shapes.length)]
+        });
+      }
+    }
+  }
+
+  private updateConfetti(): void {
+    for (let i = this.confetti.length - 1; i >= 0; i--) {
+      const c = this.confetti[i];
+
+      // Apply gravity
+      c.vy += 0.15;
+
+      // Air resistance
+      c.vx *= 0.99;
+      c.vy *= 0.99;
+
+      // Wobble effect
+      c.wobble += c.wobbleSpeed;
+      c.vx += Math.sin(c.wobble) * 0.2;
+
+      c.x += c.vx;
+      c.y += c.vy;
+      c.rotation += c.rotationSpeed;
+      c.life++;
+
+      // Remove if off screen or expired
+      if (c.y > this.canvas.height + 50 || c.life > c.maxLife) {
+        this.confetti.splice(i, 1);
+      }
+    }
+  }
+
+  private drawConfetti(): void {
+    this.confetti.forEach(c => {
+      const alpha = Math.max(0, 1 - (c.life / c.maxLife) * 0.5);
+      this.particleCtx.save();
+      this.particleCtx.translate(c.x, c.y);
+      this.particleCtx.rotate(c.rotation);
+      this.particleCtx.globalAlpha = alpha;
+      this.particleCtx.fillStyle = c.color;
+
+      if (c.shape === 'square') {
+        this.particleCtx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size);
+      } else if (c.shape === 'circle') {
+        this.particleCtx.beginPath();
+        this.particleCtx.arc(0, 0, c.size / 2, 0, Math.PI * 2);
+        this.particleCtx.fill();
+      } else {
+        // Strip/ribbon shape
+        this.particleCtx.fillRect(-c.size / 2, -c.size / 6, c.size, c.size / 3);
+      }
+
+      this.particleCtx.restore();
+    });
+  }
+
+  private showWinnerOverlay(): void {
+    this.showingWinner = true;
+
+    // Create winner overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'winner-overlay';
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000001;
+      pointer-events: none;
+      animation: winnerPulse 0.5s ease-out;
+    `;
+
+    // Add keyframe animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes winnerPulse {
+        0% { transform: scale(0.5); opacity: 0; }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      @keyframes winnerGlow {
+        0%, 100% { text-shadow: 0 0 20px #FFD700, 0 0 40px #FFA500, 0 0 60px #FF6347; }
+        50% { text-shadow: 0 0 40px #FFD700, 0 0 80px #FFA500, 0 0 120px #FF6347; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    overlay.innerHTML = `
+      <div style="
+        font-family: 'Arial Black', Impact, sans-serif;
+        font-size: 72px;
+        font-weight: bold;
+        color: #FFD700;
+        text-shadow: 0 0 20px #FFD700, 0 0 40px #FFA500, 0 0 60px #FF6347, 3px 3px 0 #B8860B;
+        animation: winnerGlow 1s ease-in-out infinite;
+        letter-spacing: 8px;
+      ">WINNER!</div>
+      <div style="
+        font-family: Arial, sans-serif;
+        font-size: 24px;
+        color: #FFD700;
+        margin-top: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      ">🎉 Congratulations! 🎉</div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Trigger confetti
+    this.createConfettiBurst();
+
+    // Play win sound
+    this.playWinSound();
+  }
+
+  private playWinSound(): void {
+    if (!this.audioContext) return;
+
+    // Create a celebratory "ding ding ding" sound
+    const playNote = (freq: number, delay: number, duration: number) => {
+      const oscillator = this.audioContext!.createOscillator();
+      const gainNode = this.audioContext!.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.value = freq;
+
+      gainNode.gain.setValueAtTime(0, this.audioContext!.currentTime + delay);
+      gainNode.gain.linearRampToValueAtTime(0.3, this.audioContext!.currentTime + delay + 0.05);
+      gainNode.gain.linearRampToValueAtTime(0, this.audioContext!.currentTime + delay + duration);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(this.audioContext!.destination);
+
+      oscillator.start(this.audioContext!.currentTime + delay);
+      oscillator.stop(this.audioContext!.currentTime + delay + duration);
+    };
+
+    // Play ascending celebratory notes
+    playNote(523.25, 0, 0.2);     // C5
+    playNote(659.25, 0.15, 0.2);  // E5
+    playNote(783.99, 0.3, 0.2);   // G5
+    playNote(1046.50, 0.45, 0.4); // C6 (longer)
+  }
+
   private fadeOut(): void {
     this.isFading = true;
 
@@ -1101,14 +1444,31 @@ class ScratchOff {
       viewport_height: window.innerHeight
     });
 
-    this.canvas.style.transition = 'opacity 0.8s ease-out';
-    this.canvas.style.opacity = '0';
-    this.particleCanvas.style.transition = 'opacity 0.8s ease-out';
-    this.particleCanvas.style.opacity = '0';
+    // Show winner overlay with confetti first
+    this.showWinnerOverlay();
+
+    // Delay the fade out to let winner animation play
+    setTimeout(() => {
+      this.canvas.style.transition = 'opacity 0.8s ease-out';
+      this.canvas.style.opacity = '0';
+
+      // Fade out winner overlay
+      const overlay = document.getElementById('winner-overlay');
+      if (overlay) {
+        overlay.style.transition = 'opacity 0.8s ease-out';
+        overlay.style.opacity = '0';
+      }
+    }, 1500);
+
+    // Keep particle canvas visible longer for confetti
+    setTimeout(() => {
+      this.particleCanvas.style.transition = 'opacity 1s ease-out';
+      this.particleCanvas.style.opacity = '0';
+    }, 2000);
 
     setTimeout(() => {
       this.cleanup();
-    }, 800);
+    }, 3000);
   }
 
   private cleanup(): void {
@@ -1124,6 +1484,12 @@ class ScratchOff {
       this.particleCanvas.parentNode.removeChild(this.particleCanvas);
     }
 
+    // Remove winner overlay
+    const overlay = document.getElementById('winner-overlay');
+    if (overlay && overlay.parentNode) {
+      overlay.parentNode.removeChild(overlay);
+    }
+
     // Restore scrolling
     document.body.style.overflow = '';
 
@@ -1135,7 +1501,9 @@ class ScratchOff {
 
   private animate(): void {
     this.updateParticles();
+    this.updateConfetti();
     this.drawParticles();
+    this.drawConfetti();
 
     this.animationId = requestAnimationFrame(() => this.animate());
   }
