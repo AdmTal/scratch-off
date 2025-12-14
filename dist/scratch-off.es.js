@@ -110,7 +110,7 @@ class F {
     this.canvas = document.createElement("canvas"), this.ctx = this.canvas.getContext("2d"), this.scratchCanvas = document.createElement("canvas"), this.scratchCtx = this.scratchCanvas.getContext("2d"), this.particleCanvas = document.createElement("canvas"), this.particleCtx = this.particleCanvas.getContext("2d"), this.ticketTitle = this.ticketTitles[Math.floor(Math.random() * this.ticketTitles.length)], this.init();
   }
   init() {
-    document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", () => this.setup()) : setTimeout(() => this.setup(), 100);
+    "scrollRestoration" in history && (history.scrollRestoration = "manual"), document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", () => this.setup()) : setTimeout(() => this.setup(), 100);
   }
   setup() {
     window.scrollTo(0, 0);

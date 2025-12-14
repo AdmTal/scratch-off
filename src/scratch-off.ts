@@ -224,6 +224,12 @@ class ScratchOff {
   }
 
   private init(): void {
+    // Disable browser's automatic scroll restoration on refresh
+    // This must be set before the browser restores scroll position
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => this.setup());
