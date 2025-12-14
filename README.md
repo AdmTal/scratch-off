@@ -64,7 +64,3 @@ MIT
 ## Contributing
 
 Pull requests are welcome! If you have any ideas to improve this project, feel free to open an issue or submit a PR.
-
-## History
-
-Built with AI. See [prompt_history.md](./prompt_history.md) if you're curious.
