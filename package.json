@@ -1,0 +1,31 @@
+{
+  "name": "scratch-off",
+  "version": "1.0.0",
+  "description": "Turn any website into a scratch-off lottery ticket experience",
+  "type": "module",
+  "main": "dist/scratch-off.umd.cjs",
+  "module": "dist/scratch-off.js",
+  "types": "dist/scratch-off.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "build:lib": "vite build --mode lib"
+  },
+  "keywords": [
+    "scratch-off",
+    "lottery",
+    "interactive",
+    "animation",
+    "canvas"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
+  }
+}
