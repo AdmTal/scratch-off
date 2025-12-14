@@ -204,6 +204,10 @@ class ScratchOff {
   }
 
   private setup(): void {
+    // Scroll to top on load to ensure consistent starting position
+    // Some browsers maintain partial scroll position on refresh
+    window.scrollTo(0, 0);
+
     const width = window.innerWidth;
     const height = window.innerHeight;
 
