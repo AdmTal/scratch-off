@@ -154,28 +154,24 @@ class ScratchOff {
   }
 
   private initAudioOnInteraction(): void {
-    const initAudio = () => {
-      if (this.audioInitialized) return;
-      this.audioInitialized = true;
+    // Initialize audio on any user interaction (using capture to run before canvas handlers)
+    document.addEventListener('mousedown', this.ensureAudioInitialized.bind(this), { capture: true });
+    document.addEventListener('touchstart', this.ensureAudioInitialized.bind(this), { capture: true });
+  }
 
-      try {
-        this.audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-        // Immediately resume to avoid delay on first scratch
-        if (this.audioContext.state === 'suspended') {
-          this.audioContext.resume();
-        }
-      } catch {
-        // Audio not supported
+  private ensureAudioInitialized(): void {
+    if (this.audioInitialized) return;
+    this.audioInitialized = true;
+
+    try {
+      this.audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      // Immediately resume to avoid delay on first scratch
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume();
       }
-
-      // Remove listeners once initialized
-      document.removeEventListener('mousedown', initAudio);
-      document.removeEventListener('touchstart', initAudio);
-    };
-
-    // Initialize audio on any user interaction
-    document.addEventListener('mousedown', initAudio);
-    document.addEventListener('touchstart', initAudio);
+    } catch {
+      // Audio not supported
+    }
   }
 
   private detectElements(): void {
@@ -647,8 +643,40 @@ class ScratchOff {
     }
   }
 
+  private hasPaintAt(x: number, y: number): boolean {
+    // Check if there's paint (opaque pixels) at the given position
+    // Sample a small area around the point
+    const sampleSize = Math.max(4, Math.floor(this.scratchRadius / 3));
+    const startX = Math.max(0, Math.floor(x - sampleSize / 2));
+    const startY = Math.max(0, Math.floor(y - sampleSize / 2));
+    const width = Math.min(sampleSize, this.canvas.width - startX);
+    const height = Math.min(sampleSize, this.canvas.height - startY);
+
+    if (width <= 0 || height <= 0) return false;
+
+    try {
+      const imageData = this.ctx.getImageData(startX, startY, width, height);
+      const data = imageData.data;
+
+      // Check if any pixel has alpha > 0 (has paint)
+      for (let i = 3; i < data.length; i += 4) {
+        if (data[i] > 0) {
+          return true;
+        }
+      }
+    } catch {
+      // If getImageData fails, assume there's paint
+      return true;
+    }
+
+    return false;
+  }
+
   private scratch(x: number, y: number, lastX: number, lastY: number): void {
     if (this.isFading) return;
+
+    // Check if there's actually paint to scratch at this location
+    const hasPaint = this.hasPaintAt(x, y);
 
     // Determine scratch direction and detect direction changes
     const dx = x - lastX;
@@ -669,11 +697,14 @@ class ScratchOff {
     }
     this.lastScratchDirection = currentDirection;
 
-    // Play scratch sound with direction awareness
-    this.playScratchSound(directionChanged);
+    // Only play sound and create particles if there's paint to scratch
+    if (hasPaint) {
+      // Play scratch sound with direction awareness
+      this.playScratchSound(directionChanged);
 
-    // Create particles along the scratch path
-    this.createParticles(x, y);
+      // Create particles along the scratch path
+      this.createParticles(x, y);
+    }
 
     // Scratch in main canvas (use destination-out to reveal underneath)
     this.ctx.globalCompositeOperation = 'destination-out';
