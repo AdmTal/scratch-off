@@ -48,6 +48,7 @@ class ScratchOff {
   private fadeThreshold = 0.90;
   private isFading = false;
   private audioContext: AudioContext | null = null;
+  private audioInitialized = false;
   private animationId: number | null = null;
   private shapes: ElementShape[] = [];
   private baseColor = '#C0C0C0';
@@ -129,8 +130,36 @@ class ScratchOff {
     // Bind events
     this.bindEvents();
 
+    // Pre-initialize audio context on first user interaction
+    this.initAudioOnInteraction();
+
     // Start animation loop
     this.animate();
+  }
+
+  private initAudioOnInteraction(): void {
+    const initAudio = () => {
+      if (this.audioInitialized) return;
+      this.audioInitialized = true;
+
+      try {
+        this.audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+        // Immediately resume to avoid delay on first scratch
+        if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume();
+        }
+      } catch {
+        // Audio not supported
+      }
+
+      // Remove listeners once initialized
+      document.removeEventListener('mousedown', initAudio);
+      document.removeEventListener('touchstart', initAudio);
+    };
+
+    // Initialize audio on any user interaction
+    document.addEventListener('mousedown', initAudio);
+    document.addEventListener('touchstart', initAudio);
   }
 
   private detectElements(): void {
@@ -556,33 +585,18 @@ class ScratchOff {
     // Scratch in main canvas (use destination-out to reveal underneath)
     this.ctx.globalCompositeOperation = 'destination-out';
 
-    // Draw scratch line from last position
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.lastX, this.lastY);
-    this.ctx.lineTo(x, y);
-    this.ctx.lineWidth = this.scratchRadius * 2;
-    this.ctx.lineCap = 'round';
-    this.ctx.lineJoin = 'round';
-    this.ctx.stroke();
+    // Draw irregular scratch line from last position
+    this.drawIrregularLine(this.ctx, this.lastX, this.lastY, x, y);
 
-    // Also draw at current position for single clicks
-    this.ctx.beginPath();
-    this.ctx.arc(x, y, this.scratchRadius, 0, Math.PI * 2);
-    this.ctx.fill();
+    // Also draw at current position for single clicks with irregular shape
+    this.drawIrregularScratch(this.ctx, x, y);
 
     this.ctx.globalCompositeOperation = 'source-over';
 
-    // Track scratched area
+    // Track scratched area with same irregular shapes
     this.scratchCtx.fillStyle = '#000000';
-    this.scratchCtx.beginPath();
-    this.scratchCtx.moveTo(this.lastX, this.lastY);
-    this.scratchCtx.lineTo(x, y);
-    this.scratchCtx.lineWidth = this.scratchRadius * 2;
-    this.scratchCtx.lineCap = 'round';
-    this.scratchCtx.stroke();
-    this.scratchCtx.beginPath();
-    this.scratchCtx.arc(x, y, this.scratchRadius, 0, Math.PI * 2);
-    this.scratchCtx.fill();
+    this.drawIrregularLine(this.scratchCtx, this.lastX, this.lastY, x, y);
+    this.drawIrregularScratch(this.scratchCtx, x, y);
 
     this.lastX = x;
     this.lastY = y;
@@ -591,6 +605,84 @@ class ScratchOff {
     if (Math.random() < 0.1) {
       this.checkProgress();
     }
+  }
+
+  private drawIrregularScratch(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+    // Draw an irregular polygon instead of a perfect circle
+    const points = 8 + Math.floor(Math.random() * 5); // 8-12 points
+    const angleStep = (Math.PI * 2) / points;
+    const baseAngle = Math.random() * Math.PI * 2; // Random rotation
+
+    ctx.beginPath();
+    for (let i = 0; i <= points; i++) {
+      const angle = baseAngle + i * angleStep;
+      // Vary the radius for each point (70-100% of scratch radius)
+      const radiusVariation = 0.7 + Math.random() * 0.3;
+      const r = this.scratchRadius * radiusVariation;
+      const px = x + Math.cos(angle) * r;
+      const py = y + Math.sin(angle) * r;
+
+      if (i === 0) {
+        ctx.moveTo(px, py);
+      } else {
+        ctx.lineTo(px, py);
+      }
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  private drawIrregularLine(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number): void {
+    // Calculate line properties
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const length = Math.sqrt(dx * dx + dy * dy);
+
+    if (length < 1) return;
+
+    // Normal vector perpendicular to line
+    const nx = -dy / length;
+    const ny = dx / length;
+
+    // Create irregular shape along the line
+    const segments = Math.max(4, Math.floor(length / 8)); // More segments for longer lines
+    const points: { x: number; y: number }[] = [];
+
+    // Generate points along one side
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      const baseX = x1 + dx * t;
+      const baseY = y1 + dy * t;
+      // Vary width along the line (80-110% of radius)
+      const widthVariation = 0.8 + Math.random() * 0.3;
+      const offset = this.scratchRadius * widthVariation;
+      points.push({
+        x: baseX + nx * offset,
+        y: baseY + ny * offset
+      });
+    }
+
+    // Generate points along other side (in reverse)
+    for (let i = segments; i >= 0; i--) {
+      const t = i / segments;
+      const baseX = x1 + dx * t;
+      const baseY = y1 + dy * t;
+      const widthVariation = 0.8 + Math.random() * 0.3;
+      const offset = this.scratchRadius * widthVariation;
+      points.push({
+        x: baseX - nx * offset,
+        y: baseY - ny * offset
+      });
+    }
+
+    // Draw the irregular shape
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.closePath();
+    ctx.fill();
   }
 
   private createParticles(x: number, y: number): void {
@@ -681,51 +773,51 @@ class ScratchOff {
   }
 
   private playScratchSound(directionChanged: boolean = false): void {
+    // Use pre-initialized audio context
     if (!this.audioContext) {
-      try {
-        this.audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      } catch {
-        return; // Audio not supported
-      }
-    }
-
-    if (this.audioContext.state === 'suspended') {
-      this.audioContext.resume();
+      return; // Audio not ready yet
     }
 
     // Shorter duration for quick "scritch" sounds
-    const duration = 0.015 + Math.random() * 0.01; // 15-25ms
+    const duration = 0.02 + Math.random() * 0.015; // 20-35ms (slightly longer for softer feel)
     const sampleRate = this.audioContext.sampleRate;
     const bufferSize = Math.floor(sampleRate * duration);
     const buffer = this.audioContext.createBuffer(1, bufferSize, sampleRate);
     const data = buffer.getChannelData(0);
 
-    // Generate scratchy noise with envelope for natural attack/decay
+    // Generate softer scratchy noise with smoother envelope
     for (let i = 0; i < bufferSize; i++) {
-      // Quick attack, quick decay envelope
       const position = i / bufferSize;
-      const envelope = Math.sin(position * Math.PI); // Smooth bell curve
-      data[i] = (Math.random() * 2 - 1) * 0.2 * envelope;
+      // Softer envelope with slower attack
+      const envelope = Math.pow(Math.sin(position * Math.PI), 1.5);
+      data[i] = (Math.random() * 2 - 1) * 0.15 * envelope;
     }
 
     const source = this.audioContext.createBufferSource();
     source.buffer = buffer;
 
-    // Vary frequency based on direction change - creates "scritch scratch" effect
-    const baseFreq = directionChanged ? 3500 : 2500;
-    const freqVariation = directionChanged ? 1500 : 1000;
+    // Lower frequencies for a softer, less harsh sound
+    const baseFreq = directionChanged ? 1800 : 1200;
+    const freqVariation = directionChanged ? 600 : 400;
 
     const filter = this.audioContext.createBiquadFilter();
     filter.type = 'bandpass';
     filter.frequency.value = baseFreq + Math.random() * freqVariation;
-    filter.Q.value = directionChanged ? 2 : 1.5; // Sharper Q on direction change
+    filter.Q.value = directionChanged ? 1.2 : 0.8; // Lower Q for softer sound
+
+    // Add a lowpass filter to cut harshness
+    const lowpass = this.audioContext.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.value = 2500; // Cut high frequencies
+    lowpass.Q.value = 0.5;
 
     const gainNode = this.audioContext.createGain();
-    // Quieter overall, slightly louder on direction change for emphasis
-    gainNode.gain.value = directionChanged ? 0.08 : 0.05;
+    // Softer volume
+    gainNode.gain.value = directionChanged ? 0.04 : 0.025;
 
     source.connect(filter);
-    filter.connect(gainNode);
+    filter.connect(lowpass);
+    lowpass.connect(gainNode);
     gainNode.connect(this.audioContext.destination);
 
     source.start();
