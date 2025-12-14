@@ -25,6 +25,10 @@ interface ElementShape {
   height: number;
   color: string;
   type: string;
+  hasBorder: boolean;
+  borderColor: string;
+  hasText: boolean;
+  textLength: number;
 }
 
 class ScratchOff {
@@ -159,6 +163,30 @@ class ScratchOff {
         // Assign colors based on element type
         let color = this.getShapeColor(tagName, computedStyle);
 
+        // Detect if element has a visible border
+        const borderTopWidth = parseFloat(computedStyle.borderTopWidth) || 0;
+        const borderRightWidth = parseFloat(computedStyle.borderRightWidth) || 0;
+        const borderBottomWidth = parseFloat(computedStyle.borderBottomWidth) || 0;
+        const borderLeftWidth = parseFloat(computedStyle.borderLeftWidth) || 0;
+        const hasBorder = (borderTopWidth + borderRightWidth + borderBottomWidth + borderLeftWidth) > 0;
+        const borderColor = computedStyle.borderColor || '#888888';
+
+        // Detect if element has direct text content (not from child elements)
+        let hasText = false;
+        let textLength = 0;
+        const textTags = ['p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'a', 'button', 'label', 'td', 'th', 'strong', 'em', 'code', 'pre'];
+        if (textTags.includes(tagName)) {
+          // Get direct text content only
+          const directText = Array.from(el.childNodes)
+            .filter(node => node.nodeType === Node.TEXT_NODE)
+            .map(node => node.textContent?.trim() || '')
+            .join('');
+          if (directText.length > 0) {
+            hasText = true;
+            textLength = directText.length;
+          }
+        }
+
         // Only add if it's a meaningful element
         if (this.isSignificantElement(tagName, rect)) {
           this.shapes.push({
@@ -167,7 +195,11 @@ class ScratchOff {
             width: Math.min(rect.width, viewportWidth - rect.left),
             height: Math.min(rect.height, viewportHeight - rect.top),
             color,
-            type: tagName
+            type: tagName,
+            hasBorder,
+            borderColor,
+            hasText,
+            textLength
           });
         }
       }
@@ -267,6 +299,10 @@ class ScratchOff {
     // Draw element labels on shapes
     this.drawElementLabels();
 
+    // Draw visual guides for borders and text
+    this.drawBorderOutlines();
+    this.drawTextPlaceholders();
+
     // Initialize scratch tracking (white = unscratched)
     this.scratchCtx.fillStyle = '#FFFFFF';
     this.scratchCtx.fillRect(0, 0, width, height);
@@ -307,6 +343,85 @@ class ScratchOff {
         this.ctx.fillStyle = textColor;
         this.ctx.fillText(label, centerX, centerY);
       }
+    });
+  }
+
+  private drawBorderOutlines(): void {
+    this.shapes.forEach(shape => {
+      if (!shape.hasBorder) return;
+
+      const padding = 2; // Inset from edge
+      const x = shape.x + padding;
+      const y = shape.y + padding;
+      const width = shape.width - padding * 2;
+      const height = shape.height - padding * 2;
+
+      if (width <= 0 || height <= 0) return;
+
+      this.ctx.save();
+      this.ctx.strokeStyle = 'rgba(60, 60, 60, 0.6)';
+      this.ctx.lineWidth = 2;
+      this.ctx.setLineDash([6, 4]); // Dotted line pattern
+
+      const radius = Math.min(4, width / 4, height / 4);
+      this.ctx.beginPath();
+      this.ctx.moveTo(x + radius, y);
+      this.ctx.lineTo(x + width - radius, y);
+      this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      this.ctx.lineTo(x + width, y + height - radius);
+      this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      this.ctx.lineTo(x + radius, y + height);
+      this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      this.ctx.lineTo(x, y + radius);
+      this.ctx.quadraticCurveTo(x, y, x + radius, y);
+      this.ctx.closePath();
+      this.ctx.stroke();
+
+      this.ctx.restore();
+    });
+  }
+
+  private drawTextPlaceholders(): void {
+    const blockChar = '█';
+
+    this.shapes.forEach(shape => {
+      if (!shape.hasText || shape.textLength === 0) return;
+
+      // Calculate how many placeholder blocks we can fit
+      const padding = 8;
+      const availableWidth = shape.width - padding * 2;
+      const availableHeight = shape.height - padding * 2;
+
+      if (availableWidth < 20 || availableHeight < 10) return;
+
+      // Calculate font size based on available space
+      let fontSize = Math.min(availableHeight * 0.6, 16);
+      fontSize = Math.max(fontSize, 8);
+
+      this.ctx.font = `${fontSize}px "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace`;
+
+      // Measure single block character
+      const blockWidth = this.ctx.measureText(blockChar + ' ').width;
+
+      // Determine how many blocks fit and how many to show
+      const maxBlocks = Math.floor(availableWidth / blockWidth);
+      const numBlocks = Math.min(Math.ceil(shape.textLength / 3), maxBlocks, 12); // Cap at 12 blocks
+
+      if (numBlocks <= 0) return;
+
+      // Build placeholder string: █ █ █
+      const placeholderText = Array(numBlocks).fill(blockChar).join(' ');
+
+      // Position: center in available space, below the element label
+      const centerX = shape.x + shape.width / 2;
+      const centerY = shape.y + shape.height / 2 + fontSize * 0.8; // Offset below label
+
+      this.ctx.save();
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillStyle = 'rgba(50, 50, 50, 0.5)';
+      this.ctx.fillText(placeholderText, centerX, centerY);
+      this.ctx.restore();
     });
   }
 
