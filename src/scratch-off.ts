@@ -30,6 +30,8 @@ class ScratchOff {
   private ctx: CanvasRenderingContext2D;
   private scratchCanvas: HTMLCanvasElement;
   private scratchCtx: CanvasRenderingContext2D;
+  private particleCanvas: HTMLCanvasElement;
+  private particleCtx: CanvasRenderingContext2D;
   private particles: Particle[] = [];
   private isScratching = false;
   private lastX = 0;
@@ -44,12 +46,16 @@ class ScratchOff {
   private shapes: ElementShape[] = [];
   private baseColor = '#C0C0C0';
   private accentColors = ['#A8A8A8', '#B8B8B8', '#D0D0D0', '#BEBEBE'];
+  private lastScratchDirection: 'up' | 'down' | 'left' | 'right' | null = null;
+  private scratchDirectionChangeCount = 0;
 
   constructor() {
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d')!;
     this.scratchCanvas = document.createElement('canvas');
     this.scratchCtx = this.scratchCanvas.getContext('2d')!;
+    this.particleCanvas = document.createElement('canvas');
+    this.particleCtx = this.particleCanvas.getContext('2d')!;
 
     this.init();
   }
@@ -86,6 +92,19 @@ class ScratchOff {
     this.scratchCanvas.width = width;
     this.scratchCanvas.height = height;
 
+    // Setup particle canvas (overlay for particles)
+    this.particleCanvas.width = width;
+    this.particleCanvas.height = height;
+    this.particleCanvas.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000000;
+      pointer-events: none;
+    `;
+
     this.totalPixels = width * height;
 
     // Detect elements and create shapes
@@ -96,6 +115,7 @@ class ScratchOff {
 
     // Add to DOM
     document.body.appendChild(this.canvas);
+    document.body.appendChild(this.particleCanvas);
 
     // Prevent scrolling
     document.body.style.overflow = 'hidden';
@@ -171,6 +191,26 @@ class ScratchOff {
     return significantTags.includes(tagName);
   }
 
+  private getContrastColor(hexColor: string): string {
+    // Parse hex color to RGB
+    const hex = hexColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    // Calculate relative luminance (WCAG formula)
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    // Return dark or light color based on background luminance
+    // Use semi-transparent colors for a subtle, classy look
+    return luminance > 0.5 ? 'rgba(40, 40, 40, 0.7)' : 'rgba(230, 230, 230, 0.7)';
+  }
+
+  private formatElementLabel(tagName: string): string {
+    // Format as self-closing tag: <tagName />
+    return `<${tagName} />`;
+  }
+
   private getShapeColor(tagName: string, style: CSSStyleDeclaration): string {
     // Create variety of silver/gray tones for lottery ticket look
     const headingColors: Record<string, string> = {
@@ -222,9 +262,50 @@ class ScratchOff {
     // Add scratch-off texture overlay
     this.addTexture();
 
+    // Draw element labels on shapes
+    this.drawElementLabels();
+
     // Initialize scratch tracking (white = unscratched)
     this.scratchCtx.fillStyle = '#FFFFFF';
     this.scratchCtx.fillRect(0, 0, width, height);
+  }
+
+  private drawElementLabels(): void {
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+
+    this.shapes.forEach(shape => {
+      const label = this.formatElementLabel(shape.type);
+      const textColor = this.getContrastColor(shape.color);
+
+      // Calculate font size based on shape dimensions
+      // Aim for text to fit nicely within the shape
+      const maxWidth = shape.width * 0.8;
+      const maxHeight = shape.height * 0.4;
+
+      // Start with a size based on shape height, then adjust
+      let fontSize = Math.min(maxHeight, 24);
+      fontSize = Math.max(fontSize, 8); // Minimum readable size
+
+      this.ctx.font = `${fontSize}px "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace`;
+
+      // Measure text and scale down if needed
+      let textWidth = this.ctx.measureText(label).width;
+      while (textWidth > maxWidth && fontSize > 8) {
+        fontSize -= 1;
+        this.ctx.font = `${fontSize}px "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace`;
+        textWidth = this.ctx.measureText(label).width;
+      }
+
+      // Only draw if shape is large enough for readable text
+      if (fontSize >= 8 && shape.width >= 30 && shape.height >= 16) {
+        const centerX = shape.x + shape.width / 2;
+        const centerY = shape.y + shape.height / 2;
+
+        this.ctx.fillStyle = textColor;
+        this.ctx.fillText(label, centerX, centerY);
+      }
+    });
   }
 
   private roundRect(x: number, y: number, width: number, height: number, radius: number): void {
@@ -330,8 +411,27 @@ class ScratchOff {
   private scratch(x: number, y: number): void {
     if (this.isFading) return;
 
-    // Play scratch sound
-    this.playScratchSound();
+    // Determine scratch direction and detect direction changes
+    const dx = x - this.lastX;
+    const dy = y - this.lastY;
+    let currentDirection: 'up' | 'down' | 'left' | 'right';
+
+    if (Math.abs(dy) > Math.abs(dx)) {
+      currentDirection = dy > 0 ? 'down' : 'up';
+    } else {
+      currentDirection = dx > 0 ? 'right' : 'left';
+    }
+
+    // Detect direction change for sound variation
+    const directionChanged = this.lastScratchDirection !== null &&
+      this.lastScratchDirection !== currentDirection;
+    if (directionChanged) {
+      this.scratchDirectionChangeCount++;
+    }
+    this.lastScratchDirection = currentDirection;
+
+    // Play scratch sound with direction awareness
+    this.playScratchSound(directionChanged);
 
     // Create particles along the scratch path
     this.createParticles(x, y);
@@ -381,20 +481,20 @@ class ScratchOff {
 
     for (let i = 0; i < particleCount; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 1 + Math.random() * 3;
+      const speed = 2 + Math.random() * 4;
       const colors = ['#C0C0C0', '#A8A8A8', '#B8B8B8', '#D0D0D0', '#909090'];
 
       this.particles.push({
         x: x + (Math.random() - 0.5) * this.scratchRadius,
         y: y + (Math.random() - 0.5) * this.scratchRadius,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed + 2, // Bias downward
+        vy: Math.sin(angle) * speed + 5, // Stronger downward bias for faster fall
         size: 2 + Math.random() * 4,
         color: colors[Math.floor(Math.random() * colors.length)],
         rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.2,
+        rotationSpeed: (Math.random() - 0.5) * 0.3,
         life: 1,
-        maxLife: 60 + Math.random() * 60
+        maxLife: 30 + Math.random() * 30 // Shorter lifespan
       });
     }
   }
@@ -403,13 +503,13 @@ class ScratchOff {
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
 
-      // Apply gravity and air resistance
-      p.vy += 0.15;
-      p.vx *= 0.99;
-      p.vy *= 0.99;
+      // Apply stronger gravity and air resistance for faster falling
+      p.vy += 0.4;
+      p.vx *= 0.98;
+      p.vy *= 0.98;
 
       // Add slight horizontal drift
-      p.vx += (Math.random() - 0.5) * 0.1;
+      p.vx += (Math.random() - 0.5) * 0.15;
 
       p.x += p.vx;
       p.y += p.vy;
@@ -424,30 +524,36 @@ class ScratchOff {
   }
 
   private drawParticles(): void {
+    // Clear particle canvas each frame to prevent trails
+    this.particleCtx.clearRect(0, 0, this.particleCanvas.width, this.particleCanvas.height);
+
     this.particles.forEach(p => {
       const alpha = 1 - (p.life / p.maxLife);
-      this.ctx.save();
-      this.ctx.translate(p.x, p.y);
-      this.ctx.rotate(p.rotation);
-      this.ctx.fillStyle = p.color;
-      this.ctx.globalAlpha = alpha;
+      this.particleCtx.save();
+      this.particleCtx.translate(p.x, p.y);
+      this.particleCtx.rotate(p.rotation);
+      this.particleCtx.fillStyle = p.color;
+      this.particleCtx.globalAlpha = alpha;
 
-      // Draw irregular flake shape
-      this.ctx.beginPath();
-      this.ctx.moveTo(-p.size / 2, -p.size / 4);
-      this.ctx.lineTo(0, -p.size / 2);
-      this.ctx.lineTo(p.size / 2, -p.size / 4);
-      this.ctx.lineTo(p.size / 2, p.size / 4);
-      this.ctx.lineTo(0, p.size / 2);
-      this.ctx.lineTo(-p.size / 2, p.size / 4);
-      this.ctx.closePath();
-      this.ctx.fill();
+      // Draw jagged irregular flake shape with random offsets
+      const jag = p.size * 0.3; // jaggedness factor
+      this.particleCtx.beginPath();
+      this.particleCtx.moveTo(-p.size / 2 + Math.random() * jag, -p.size / 3);
+      this.particleCtx.lineTo(-p.size / 4, -p.size / 2 + Math.random() * jag);
+      this.particleCtx.lineTo(p.size / 4, -p.size / 2 + Math.random() * jag);
+      this.particleCtx.lineTo(p.size / 2 + Math.random() * jag, -p.size / 4);
+      this.particleCtx.lineTo(p.size / 2, p.size / 4 + Math.random() * jag);
+      this.particleCtx.lineTo(p.size / 4, p.size / 2);
+      this.particleCtx.lineTo(-p.size / 4, p.size / 2 + Math.random() * jag);
+      this.particleCtx.lineTo(-p.size / 2, p.size / 4);
+      this.particleCtx.closePath();
+      this.particleCtx.fill();
 
-      this.ctx.restore();
+      this.particleCtx.restore();
     });
   }
 
-  private playScratchSound(): void {
+  private playScratchSound(directionChanged: boolean = false): void {
     if (!this.audioContext) {
       try {
         this.audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
@@ -460,29 +566,36 @@ class ScratchOff {
       this.audioContext.resume();
     }
 
-    // Create scratch sound using noise
-    const duration = 0.05;
+    // Shorter duration for quick "scritch" sounds
+    const duration = 0.015 + Math.random() * 0.01; // 15-25ms
     const sampleRate = this.audioContext.sampleRate;
     const bufferSize = Math.floor(sampleRate * duration);
     const buffer = this.audioContext.createBuffer(1, bufferSize, sampleRate);
     const data = buffer.getChannelData(0);
 
-    // Generate scratchy noise
+    // Generate scratchy noise with envelope for natural attack/decay
     for (let i = 0; i < bufferSize; i++) {
-      data[i] = (Math.random() * 2 - 1) * 0.3;
+      // Quick attack, quick decay envelope
+      const position = i / bufferSize;
+      const envelope = Math.sin(position * Math.PI); // Smooth bell curve
+      data[i] = (Math.random() * 2 - 1) * 0.2 * envelope;
     }
 
     const source = this.audioContext.createBufferSource();
     source.buffer = buffer;
 
-    // Add filter to make it sound more like scratching
+    // Vary frequency based on direction change - creates "scritch scratch" effect
+    const baseFreq = directionChanged ? 3500 : 2500;
+    const freqVariation = directionChanged ? 1500 : 1000;
+
     const filter = this.audioContext.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.value = 2000 + Math.random() * 2000;
-    filter.Q.value = 1;
+    filter.frequency.value = baseFreq + Math.random() * freqVariation;
+    filter.Q.value = directionChanged ? 2 : 1.5; // Sharper Q on direction change
 
     const gainNode = this.audioContext.createGain();
-    gainNode.gain.value = 0.15;
+    // Quieter overall, slightly louder on direction change for emphasis
+    gainNode.gain.value = directionChanged ? 0.08 : 0.05;
 
     source.connect(filter);
     filter.connect(gainNode);
@@ -519,6 +632,8 @@ class ScratchOff {
     this.isFading = true;
     this.canvas.style.transition = 'opacity 0.8s ease-out';
     this.canvas.style.opacity = '0';
+    this.particleCanvas.style.transition = 'opacity 0.8s ease-out';
+    this.particleCanvas.style.opacity = '0';
 
     setTimeout(() => {
       this.cleanup();
@@ -532,6 +647,10 @@ class ScratchOff {
 
     if (this.canvas.parentNode) {
       this.canvas.parentNode.removeChild(this.canvas);
+    }
+
+    if (this.particleCanvas.parentNode) {
+      this.particleCanvas.parentNode.removeChild(this.particleCanvas);
     }
 
     // Restore scrolling
