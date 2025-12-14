@@ -337,9 +337,30 @@ class ScratchOff {
       if (this.audioContext.state === 'suspended') {
         this.audioContext.resume();
       }
+      // Play a silent sound to fully unlock audio on mobile
+      // Mobile browsers require actual audio output during user gesture to unlock
+      this.playUnlockSound();
     } catch {
       // Audio not supported
     }
+  }
+
+  private playUnlockSound(): void {
+    if (!this.audioContext) return;
+
+    // Create a very short, silent oscillator to unlock audio on mobile
+    // This must happen during a user gesture (touchstart/click)
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+
+    // Set gain to nearly silent but not zero (some browsers ignore zero)
+    gainNode.gain.value = 0.001;
+
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(this.audioContext.currentTime + 0.001);
   }
 
   private createTouchCursorElement(): HTMLDivElement {

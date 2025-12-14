@@ -1,6 +1,6 @@
 var A = Object.defineProperty;
-var F = (u, t, e) => t in u ? A(u, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : u[t] = e;
-var c = (u, t, e) => F(u, typeof t != "symbol" ? t + "" : t, e);
+var F = (f, t, e) => t in f ? A(f, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : f[t] = e;
+var c = (f, t, e) => F(f, typeof t != "symbol" ? t + "" : t, e);
 const b = "G-552PMDLPMQ", T = {
   initialized: !1,
   /**
@@ -27,7 +27,7 @@ const b = "G-552PMDLPMQ", T = {
   /**
    * Track an event with host information for cross-domain analytics
    */
-  trackEvent(u, t = {}) {
+  trackEvent(f, t = {}) {
     if (typeof window.gtag != "function") return;
     const e = {
       ...t,
@@ -37,7 +37,7 @@ const b = "G-552PMDLPMQ", T = {
       embedded: window.self !== window.top
       // true if in iframe
     };
-    window.gtag("event", u, e);
+    window.gtag("event", f, e);
   }
 };
 class L {
@@ -142,10 +142,15 @@ class L {
     if (!this.audioInitialized) {
       this.audioInitialized = !0;
       try {
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)(), this.audioContext.state === "suspended" && this.audioContext.resume();
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)(), this.audioContext.state === "suspended" && this.audioContext.resume(), this.playUnlockSound();
       } catch {
       }
     }
+  }
+  playUnlockSound() {
+    if (!this.audioContext) return;
+    const t = this.audioContext.createOscillator(), e = this.audioContext.createGain();
+    e.gain.value = 1e-3, t.connect(e), e.connect(this.audioContext.destination), t.start(), t.stop(this.audioContext.currentTime + 1e-3);
   }
   createTouchCursorElement() {
     const t = document.createElement("div");
@@ -172,7 +177,7 @@ class L {
         if (r.display === "none" || r.visibility === "hidden")
           return;
         let h = this.getShapeColor(n, r);
-        const l = parseFloat(r.borderTopWidth) || 0, d = parseFloat(r.borderRightWidth) || 0, x = parseFloat(r.borderBottomWidth) || 0, f = parseFloat(r.borderLeftWidth) || 0, p = l + d + x + f > 0, g = r.borderColor || "#888888";
+        const l = parseFloat(r.borderTopWidth) || 0, d = parseFloat(r.borderRightWidth) || 0, x = parseFloat(r.borderBottomWidth) || 0, u = parseFloat(r.borderLeftWidth) || 0, p = l + d + x + u > 0, g = r.borderColor || "#888888";
         let C = !1, v = 0, m = [], M = parseFloat(r.fontSize) || 16, S = parseFloat(r.lineHeight) || M * 1.2;
         if (["p", "span", "h1", "h2", "h3", "h4", "h5", "h6", "li", "a", "button", "label", "td", "th", "strong", "em", "code", "pre"].includes(n)) {
           const E = Array.from(a.childNodes).filter((y) => {
@@ -469,23 +474,23 @@ class L {
     const o = s - e, n = a - i, r = Math.sqrt(o * o + n * n);
     if (r < 1) return;
     const h = -n / r, l = o / r, d = Math.max(4, Math.floor(r / 8)), x = [];
-    for (let f = 0; f <= d; f++) {
-      const p = f / d, g = e + o * p, C = i + n * p, v = 0.8 + Math.random() * 0.3, m = this.scratchRadius * v;
+    for (let u = 0; u <= d; u++) {
+      const p = u / d, g = e + o * p, C = i + n * p, v = 0.8 + Math.random() * 0.3, m = this.scratchRadius * v;
       x.push({
         x: g + h * m,
         y: C + l * m
       });
     }
-    for (let f = d; f >= 0; f--) {
-      const p = f / d, g = e + o * p, C = i + n * p, v = 0.8 + Math.random() * 0.3, m = this.scratchRadius * v;
+    for (let u = d; u >= 0; u--) {
+      const p = u / d, g = e + o * p, C = i + n * p, v = 0.8 + Math.random() * 0.3, m = this.scratchRadius * v;
       x.push({
         x: g - h * m,
         y: C - l * m
       });
     }
     t.beginPath(), t.moveTo(x[0].x, x[0].y);
-    for (let f = 1; f < x.length; f++)
-      t.lineTo(x[f].x, x[f].y);
+    for (let u = 1; u < x.length; u++)
+      t.lineTo(x[u].x, x[u].y);
     t.closePath(), t.fill();
   }
   createParticles(t, e) {
@@ -535,9 +540,9 @@ class L {
     if (this.ensureAudioInitialized(), !this.audioContext)
       return;
     const e = 0.02 + Math.random() * 0.015, i = this.audioContext.sampleRate, s = Math.floor(i * e), a = this.audioContext.createBuffer(1, s, i), o = a.getChannelData(0);
-    for (let f = 0; f < s; f++) {
-      const p = f / s, g = Math.pow(Math.sin(p * Math.PI), 1.5);
-      o[f] = (Math.random() * 2 - 1) * 0.15 * g;
+    for (let u = 0; u < s; u++) {
+      const p = u / s, g = Math.pow(Math.sin(p * Math.PI), 1.5);
+      o[u] = (Math.random() * 2 - 1) * 0.15 * g;
     }
     const n = this.audioContext.createBufferSource();
     n.buffer = a;
