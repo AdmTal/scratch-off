@@ -1,5 +1,7 @@
 # Scratch-Off
 
+The open source repo for [scratchy-lotto.com](https://scratchy-lotto.com).
+
 Drop a script tag on any page. Boom — it's a lottery ticket now.
 
 Users scratch to reveal your content. It's dumb and delightful.
@@ -58,6 +60,10 @@ Modern browsers. You're fine.
 ## License
 
 MIT
+
+## Contributing
+
+Pull requests are welcome! If you have any ideas to improve this project, feel free to open an issue or submit a PR.
 
 ## History
 
