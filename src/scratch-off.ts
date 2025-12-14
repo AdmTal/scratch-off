@@ -14,6 +14,8 @@ interface Particle {
   rotationSpeed: number;
   life: number;
   maxLife: number;
+  // Pre-computed shape offsets to prevent trail artifacts from per-frame randomness
+  shapeOffsets: number[];
 }
 
 interface ElementShape {
@@ -494,7 +496,16 @@ class ScratchOff {
         rotation: Math.random() * Math.PI * 2,
         rotationSpeed: (Math.random() - 0.5) * 0.3,
         life: 1,
-        maxLife: 30 + Math.random() * 30 // Shorter lifespan
+        maxLife: 30 + Math.random() * 30, // Shorter lifespan
+        // Pre-compute random shape offsets to prevent trail artifacts
+        shapeOffsets: [
+          Math.random(),
+          Math.random(),
+          Math.random(),
+          Math.random(),
+          Math.random(),
+          Math.random()
+        ]
       });
     }
   }
@@ -535,16 +546,17 @@ class ScratchOff {
       this.particleCtx.fillStyle = p.color;
       this.particleCtx.globalAlpha = alpha;
 
-      // Draw jagged irregular flake shape with random offsets
+      // Draw jagged irregular flake shape using pre-computed offsets
       const jag = p.size * 0.3; // jaggedness factor
+      const o = p.shapeOffsets; // use stored offsets instead of Math.random()
       this.particleCtx.beginPath();
-      this.particleCtx.moveTo(-p.size / 2 + Math.random() * jag, -p.size / 3);
-      this.particleCtx.lineTo(-p.size / 4, -p.size / 2 + Math.random() * jag);
-      this.particleCtx.lineTo(p.size / 4, -p.size / 2 + Math.random() * jag);
-      this.particleCtx.lineTo(p.size / 2 + Math.random() * jag, -p.size / 4);
-      this.particleCtx.lineTo(p.size / 2, p.size / 4 + Math.random() * jag);
+      this.particleCtx.moveTo(-p.size / 2 + o[0] * jag, -p.size / 3);
+      this.particleCtx.lineTo(-p.size / 4, -p.size / 2 + o[1] * jag);
+      this.particleCtx.lineTo(p.size / 4, -p.size / 2 + o[2] * jag);
+      this.particleCtx.lineTo(p.size / 2 + o[3] * jag, -p.size / 4);
+      this.particleCtx.lineTo(p.size / 2, p.size / 4 + o[4] * jag);
       this.particleCtx.lineTo(p.size / 4, p.size / 2);
-      this.particleCtx.lineTo(-p.size / 4, p.size / 2 + Math.random() * jag);
+      this.particleCtx.lineTo(-p.size / 4, p.size / 2 + o[5] * jag);
       this.particleCtx.lineTo(-p.size / 2, p.size / 4);
       this.particleCtx.closePath();
       this.particleCtx.fill();
