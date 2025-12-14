@@ -1,8 +1,7 @@
 # Dependencies
 node_modules/
 
-# Build output
-dist/
+# Build output (dist is committed for easy distribution)
 
 # IDE
 .idea/

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scratch-Off Demo</title>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-552PMDLPMQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-552PMDLPMQ');
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      color: #FFD700;
+      font-size: 3rem;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .tagline {
+      color: rgba(255,255,255,0.95);
+      font-size: 1.4rem;
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .tagline strong {
+      color: #FFD700;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .card h2 {
+      color: #1a1a2e;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
+    .card p {
+      color: #444;
+      line-height: 1.7;
+      margin-bottom: 15px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .feature {
+      background: #f0f0f5;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .feature h3 {
+      color: #1a1a2e;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .feature p {
+      color: #666;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .code-block {
+      background: #0d1117;
+      color: #c9d1d9;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      border: 1px solid #30363d;
+    }
+
+    footer {
+      text-align: center;
+      color: rgba(255,255,255,0.8);
+      margin-top: 40px;
+      padding: 20px;
+    }
+
+    footer a {
+      color: #FFD700;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .other-projects {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .other-projects h3 {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .project-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .project-links a {
+      color: rgba(255,255,255,0.85);
+      font-size: 0.95rem;
+    }
+
+    .social-links {
+      margin-top: 15px;
+    }
+
+    .social-links a {
+      margin: 0 10px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .bookmarklet-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .bookmarklet-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #1a1a2e;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: grab;
+    }
+
+    .bookmarklet-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+    }
+
+    .bookmarklet-button:active {
+      cursor: grabbing;
+    }
+
+    .bookmarklet-hint {
+      color: #888;
+      font-size: 0.9rem;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .bookmarklet-code {
+      font-size: 0.75rem;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Scratch-Off.js</h1>
+      <p class="tagline">Transform your site into a <strong>scratch-off lottery ticket</strong> with one line of JavaScript.</p>
+    </header>
+
+    <div class="card">
+      <h2>Try it now</h2>
+      <p>This entire page is covered in scratch-off material. Use your mouse (or finger on mobile) to scratch it away. Hit ~90% and it auto-reveals.</p>
+    </div>
+
+    <div class="card">
+      <h2>Features</h2>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">🪙</div>
+          <h3>Realistic Coin Cursor</h3>
+          <p>Golden coin that scratches like the real thing</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📱</div>
+          <h3>Touch Support</h3>
+          <p>Works on desktop and mobile</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔊</div>
+          <h3>Scratch Sounds</h3>
+          <p>Satisfying audio feedback</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">✨</div>
+          <h3>Particle Effects</h3>
+          <p>Paint flakes fall as you scratch</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>One Line Install</h2>
+      <div class="code-block">&lt;script src="https://scratchoff.netlify.app/scratch-off.iife.js"&gt;&lt;/script&gt;</div>
+    </div>
+
+    <div class="card">
+      <h2>Bookmarklet</h2>
+      <p>Drag this button to your bookmarks bar, then click it on any website to turn that page into a scratch-off ticket:</p>
+      <div class="bookmarklet-container">
+        <a class="bookmarklet-button" href="javascript:(function(){if(window.ScratchOff){alert('ScratchOff is already active on this page!');return;}var s=document.createElement('script');s.src='https://scratchoff.netlify.app/scratch-off.iife.js';s.onerror=function(){alert('Failed to load ScratchOff. Check your internet connection.');};document.body.appendChild(s);})();">
+          Scratch-Off!
+        </a>
+      </div>
+      <p class="bookmarklet-hint">Or copy this code and create a new bookmark manually:</p>
+      <div class="code-block bookmarklet-code">javascript:(function(){if(window.ScratchOff){alert('ScratchOff is already active on this page!');return;}var s=document.createElement('script');s.src='https://scratchoff.netlify.app/scratch-off.iife.js';s.onerror=function(){alert('Failed to load ScratchOff. Check your internet connection.');};document.body.appendChild(s);})();</div>
+    </div>
+
+    <footer>
+      <p>Built by <a href="https://github.com/admtal">Adam Tal</a></p>
+
+      <div class="other-projects">
+        <h3>Other projects by Adam</h3>
+        <div class="project-links">
+          <a href="https://lazytetris.com">LazyTetris.com</a>
+          <a href="https://passwordbasket.com">PasswordBasket.com</a>
+          <a href="https://demoscope.app">DemoScope.app</a>
+        </div>
+        <div class="social-links">
+          <a href="https://github.com/admtal">GitHub</a>
+          <a href="https://www.linkedin.com/in/admtal/">LinkedIn</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./scratch-off.iife.js"></script>
+</body>
+</html>
