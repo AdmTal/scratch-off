@@ -18,6 +18,13 @@ interface Particle {
   shapeOffsets: number[];
 }
 
+interface TextLineInfo {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 interface ElementShape {
   x: number;
   y: number;
@@ -29,6 +36,9 @@ interface ElementShape {
   borderColor: string;
   hasText: boolean;
   textLength: number;
+  textLines: TextLineInfo[];
+  fontSize: number;
+  lineHeight: number;
 }
 
 class ScratchOff {
@@ -203,16 +213,22 @@ class ScratchOff {
         // Detect if element has direct text content (not from child elements)
         let hasText = false;
         let textLength = 0;
+        let textLines: TextLineInfo[] = [];
+        let fontSize = parseFloat(computedStyle.fontSize) || 16;
+        let lineHeight = parseFloat(computedStyle.lineHeight) || fontSize * 1.2;
+
         const textTags = ['p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'a', 'button', 'label', 'td', 'th', 'strong', 'em', 'code', 'pre'];
         if (textTags.includes(tagName)) {
-          // Get direct text content only
-          const directText = Array.from(el.childNodes)
-            .filter(node => node.nodeType === Node.TEXT_NODE)
-            .map(node => node.textContent?.trim() || '')
-            .join('');
-          if (directText.length > 0) {
+          // Get direct text content and calculate line positions
+          const textNodes = Array.from(el.childNodes)
+            .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+
+          if (textNodes.length > 0) {
             hasText = true;
-            textLength = directText.length;
+            textLength = textNodes.map(n => n.textContent?.trim() || '').join('').length;
+
+            // Use Range API to get actual text line positions
+            textLines = this.getTextLineRects(el as HTMLElement, textNodes);
           }
         }
 
@@ -228,7 +244,10 @@ class ScratchOff {
             hasBorder,
             borderColor,
             hasText,
-            textLength
+            textLength,
+            textLines,
+            fontSize,
+            lineHeight
           });
         }
       }
@@ -252,6 +271,52 @@ class ScratchOff {
     if (rect.width < 10 || rect.height < 10) return false;
 
     return significantTags.includes(tagName);
+  }
+
+  private getTextLineRects(element: HTMLElement, textNodes: ChildNode[]): TextLineInfo[] {
+    const lines: TextLineInfo[] = [];
+    const range = document.createRange();
+
+    textNodes.forEach(textNode => {
+      if (!textNode.textContent) return;
+
+      const text = textNode.textContent;
+      range.selectNodeContents(textNode);
+
+      // Get all client rects - each rect represents a line of text
+      const rects = range.getClientRects();
+
+      for (let i = 0; i < rects.length; i++) {
+        const rect = rects[i];
+        // Filter out tiny rects and ensure minimum size
+        if (rect.width > 5 && rect.height > 5) {
+          // Check if this line overlaps with an existing one (merge if so)
+          const existingLine = lines.find(
+            line => Math.abs(line.y - rect.top) < rect.height * 0.5
+          );
+
+          if (existingLine) {
+            // Extend the existing line
+            const minX = Math.min(existingLine.x, rect.left);
+            const maxX = Math.max(existingLine.x + existingLine.width, rect.right);
+            existingLine.x = minX;
+            existingLine.width = maxX - minX;
+          } else {
+            lines.push({
+              x: rect.left,
+              y: rect.top,
+              width: rect.width,
+              height: rect.height
+            });
+          }
+        }
+      }
+    });
+
+    // Sort lines by vertical position
+    lines.sort((a, b) => a.y - b.y);
+
+    return lines;
   }
 
   private getContrastColor(hexColor: string): string {
@@ -411,47 +476,43 @@ class ScratchOff {
   }
 
   private drawTextPlaceholders(): void {
-    const blockChar = '█';
+    this.ctx.save();
 
     this.shapes.forEach(shape => {
-      if (!shape.hasText || shape.textLength === 0) return;
+      if (!shape.hasText || shape.textLines.length === 0) return;
 
-      // Calculate how many placeholder blocks we can fit
-      const padding = 8;
-      const availableWidth = shape.width - padding * 2;
-      const availableHeight = shape.height - padding * 2;
+      // Draw redaction rectangles for each line of text
+      shape.textLines.forEach(line => {
+        // Use a dark semi-transparent color for the redaction bar
+        this.ctx.fillStyle = 'rgba(40, 40, 40, 0.6)';
 
-      if (availableWidth < 20 || availableHeight < 10) return;
+        // Add small padding/rounding for a cleaner look
+        const barHeight = line.height * 0.75; // Slightly shorter than full line height
+        const yOffset = (line.height - barHeight) / 2; // Center vertically
 
-      // Calculate font size based on available space
-      let fontSize = Math.min(availableHeight * 0.6, 16);
-      fontSize = Math.max(fontSize, 8);
+        // Draw rounded rectangle for the redaction bar
+        const radius = Math.min(3, barHeight / 4);
+        const x = line.x;
+        const y = line.y + yOffset;
+        const width = line.width;
+        const height = barHeight;
 
-      this.ctx.font = `${fontSize}px "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace`;
-
-      // Measure single block character
-      const blockWidth = this.ctx.measureText(blockChar + ' ').width;
-
-      // Determine how many blocks fit and how many to show
-      const maxBlocks = Math.floor(availableWidth / blockWidth);
-      const numBlocks = Math.min(Math.ceil(shape.textLength / 3), maxBlocks, 12); // Cap at 12 blocks
-
-      if (numBlocks <= 0) return;
-
-      // Build placeholder string: █ █ █
-      const placeholderText = Array(numBlocks).fill(blockChar).join(' ');
-
-      // Position: center in available space, below the element label
-      const centerX = shape.x + shape.width / 2;
-      const centerY = shape.y + shape.height / 2 + fontSize * 0.8; // Offset below label
-
-      this.ctx.save();
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      this.ctx.fillStyle = 'rgba(50, 50, 50, 0.5)';
-      this.ctx.fillText(placeholderText, centerX, centerY);
-      this.ctx.restore();
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + radius, y);
+        this.ctx.lineTo(x + width - radius, y);
+        this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.ctx.lineTo(x + width, y + height - radius);
+        this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        this.ctx.lineTo(x + radius, y + height);
+        this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        this.ctx.lineTo(x, y + radius);
+        this.ctx.quadraticCurveTo(x, y, x + radius, y);
+        this.ctx.closePath();
+        this.ctx.fill();
+      });
     });
+
+    this.ctx.restore();
   }
 
   private roundRect(x: number, y: number, width: number, height: number, radius: number): void {
