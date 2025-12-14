@@ -1,7 +1,7 @@
 var S = Object.defineProperty;
-var F = (u, t, e) => t in u ? S(u, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : u[t] = e;
-var c = (u, t, e) => F(u, typeof t != "symbol" ? t + "" : t, e);
-const b = "G-552PMDLPMQ", M = {
+var A = (u, t, e) => t in u ? S(u, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : u[t] = e;
+var c = (u, t, e) => A(u, typeof t != "symbol" ? t + "" : t, e);
+const b = "G-552PMDLPMQ", T = {
   initialized: !1,
   /**
    * Initialize Google Analytics if not already present
@@ -40,7 +40,7 @@ const b = "G-552PMDLPMQ", M = {
     window.gtag("event", u, e);
   }
 };
-class A {
+class F {
   constructor() {
     c(this, "canvas");
     c(this, "ctx");
@@ -59,7 +59,7 @@ class A {
     c(this, "isDesktop", !1);
     c(this, "totalPixels", 0);
     c(this, "scratchedPixels", 0);
-    c(this, "fadeThreshold", 0.9);
+    c(this, "fadeThreshold", 0.6);
     c(this, "isFading", !1);
     c(this, "audioContext", null);
     c(this, "audioInitialized", !1);
@@ -70,8 +70,8 @@ class A {
     c(this, "lastScratchDirection", null);
     // Coin cursor SVG (golden coin) - small version for mobile (32x32)
     c(this, "coinCursorSmall", `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='18' rx='14' ry='10' fill='%23B8860B'/%3E%3Cellipse cx='16' cy='14' rx='14' ry='10' fill='%23FFD700'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='%23FFA500'/%3E%3Cellipse cx='16' cy='14' rx='11' ry='7' fill='url(%23shine)'/%3E%3Ctext x='16' y='17' font-family='Arial' font-size='10' font-weight='bold' fill='%23B8860B' text-anchor='middle'%3E%24%3C/text%3E%3Cdefs%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FFE66D;stop-opacity:0.8'/%3E%3Cstop offset='50%25' style='stop-color:%23FFD700;stop-opacity:0'/%3E%3Cstop offset='100%25' style='stop-color:%23B8860B;stop-opacity:0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E") 16 16, crosshair`);
-    // Large version for desktop (96x96 = 3x size)
-    c(this, "coinCursorLarge", `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cellipse cx='48' cy='54' rx='42' ry='30' fill='%23B8860B'/%3E%3Cellipse cx='48' cy='42' rx='42' ry='30' fill='%23FFD700'/%3E%3Cellipse cx='48' cy='42' rx='33' ry='21' fill='%23FFA500'/%3E%3Cellipse cx='48' cy='42' rx='33' ry='21' fill='url(%23shine)'/%3E%3Ctext x='48' y='51' font-family='Arial' font-size='30' font-weight='bold' fill='%23B8860B' text-anchor='middle'%3E%24%3C/text%3E%3Cdefs%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FFE66D;stop-opacity:0.8'/%3E%3Cstop offset='50%25' style='stop-color:%23FFD700;stop-opacity:0'/%3E%3Cstop offset='100%25' style='stop-color:%23B8860B;stop-opacity:0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E") 48 48, crosshair`);
+    // Large version for desktop (72x72 = 2.25x size, 75% of original 96x96)
+    c(this, "coinCursorLarge", `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cellipse cx='36' cy='41' rx='32' ry='23' fill='%23B8860B'/%3E%3Cellipse cx='36' cy='32' rx='32' ry='23' fill='%23FFD700'/%3E%3Cellipse cx='36' cy='32' rx='25' ry='16' fill='%23FFA500'/%3E%3Cellipse cx='36' cy='32' rx='25' ry='16' fill='url(%23shine)'/%3E%3Ctext x='36' y='38' font-family='Arial' font-size='23' font-weight='bold' fill='%23B8860B' text-anchor='middle'%3E%24%3C/text%3E%3Cdefs%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FFE66D;stop-opacity:0.8'/%3E%3Cstop offset='50%25' style='stop-color:%23FFD700;stop-opacity:0'/%3E%3Cstop offset='100%25' style='stop-color:%23B8860B;stop-opacity:0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E") 36 36, crosshair`);
     c(this, "coinCursor", this.coinCursorSmall);
     c(this, "scratchDirectionChangeCount", 0);
     // Analytics tracking state
@@ -80,14 +80,42 @@ class A {
     c(this, "sessionStartTime", 0);
     c(this, "scratchCount", 0);
     c(this, "deviceType", "mouse");
-    this.canvas = document.createElement("canvas"), this.ctx = this.canvas.getContext("2d"), this.scratchCanvas = document.createElement("canvas"), this.scratchCtx = this.scratchCanvas.getContext("2d"), this.particleCanvas = document.createElement("canvas"), this.particleCtx = this.particleCanvas.getContext("2d"), this.init();
+    // Random lottery ticket titles
+    c(this, "ticketTitles", [
+      "MEGA MILLIONS",
+      "CASH BLAST",
+      "LUCKY 7s",
+      "GOLD RUSH",
+      "TRIPLE JACKPOT",
+      "DIAMOND MINE",
+      "FAST CASH",
+      "SET FOR LIFE",
+      "WILD CHERRY CROSSWORD",
+      "CASH EXPLOSION",
+      "LUCKY STREAK",
+      "MONEY BAGS",
+      "GOLDEN TICKET",
+      "5X THE CASH",
+      "RUBY RICHES",
+      "INSTANT MILLIONAIRE",
+      "CASH FRENZY",
+      "TRIPLE 777",
+      "20X THE MONEY",
+      "WINNER WINNER",
+      "CASH CACHE",
+      "LUCKY RELOAD",
+      "PAGE OF FORTUNE"
+    ]);
+    c(this, "ticketTitle");
+    this.canvas = document.createElement("canvas"), this.ctx = this.canvas.getContext("2d"), this.scratchCanvas = document.createElement("canvas"), this.scratchCtx = this.scratchCanvas.getContext("2d"), this.particleCanvas = document.createElement("canvas"), this.particleCtx = this.particleCanvas.getContext("2d"), this.ticketTitle = this.ticketTitles[Math.floor(Math.random() * this.ticketTitles.length)], this.init();
   }
   init() {
     document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", () => this.setup()) : setTimeout(() => this.setup(), 100);
   }
   setup() {
+    window.scrollTo(0, 0);
     const t = window.innerWidth, e = window.innerHeight, i = window.innerWidth >= 768, s = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    this.isDesktop = i && !s, this.isDesktop ? (this.coinCursor = this.coinCursorLarge, this.scratchRadius = 90) : (this.coinCursor = this.coinCursorSmall, this.scratchRadius = 30), this.canvas.width = t, this.canvas.height = e, this.canvas.style.cssText = `
+    this.isDesktop = i && !s, this.isDesktop ? (this.coinCursor = this.coinCursorLarge, this.scratchRadius = 68) : (this.coinCursor = this.coinCursorSmall, this.scratchRadius = 30), this.canvas.width = t, this.canvas.height = e, this.canvas.style.cssText = `
       position: fixed;
       top: 0;
       left: 0;
@@ -104,7 +132,8 @@ class A {
       height: 100%;
       z-index: 1000000;
       pointer-events: none;
-    `, this.totalPixels = t * e, this.detectElements(), this.drawScratchLayer(), document.body.appendChild(this.canvas), document.body.appendChild(this.particleCanvas), document.body.style.overflow = "hidden", this.bindEvents(), this.initAudioOnInteraction(), M.init(), this.animate();
+      cursor: ${this.coinCursor};
+    `, this.totalPixels = t * e, this.detectElements(), this.drawScratchLayer(), document.body.appendChild(this.canvas), document.body.appendChild(this.particleCanvas), document.body.style.overflow = "hidden", this.bindEvents(), this.initAudioOnInteraction(), T.init(), this.animate();
   }
   initAudioOnInteraction() {
     document.addEventListener("mousedown", this.ensureAudioInitialized.bind(this), { capture: !0 }), document.addEventListener("touchstart", this.ensureAudioInitialized.bind(this), { capture: !0 });
@@ -131,14 +160,14 @@ class A {
         const r = parseFloat(o.borderTopWidth) || 0, l = parseFloat(o.borderRightWidth) || 0, d = parseFloat(o.borderBottomWidth) || 0, x = parseFloat(o.borderLeftWidth) || 0, f = r + l + d + x > 0, p = o.borderColor || "#888888";
         let g = !1, C = 0, v = [], m = parseFloat(o.fontSize) || 16, E = parseFloat(o.lineHeight) || m * 1.2;
         if (["p", "span", "h1", "h2", "h3", "h4", "h5", "h6", "li", "a", "button", "label", "td", "th", "strong", "em", "code", "pre"].includes(n)) {
-          const T = Array.from(s.childNodes).filter((y) => {
+          const M = Array.from(s.childNodes).filter((y) => {
             var w;
             return y.nodeType === Node.TEXT_NODE && ((w = y.textContent) == null ? void 0 : w.trim());
           });
-          T.length > 0 && (g = !0, C = T.map((y) => {
+          M.length > 0 && (g = !0, C = M.map((y) => {
             var w;
             return ((w = y.textContent) == null ? void 0 : w.trim()) || "";
-          }).join("").length, v = this.getTextLineRects(s, T));
+          }).join("").length, v = this.getTextLineRects(s, M));
         }
         this.isSignificantElement(n, a) && this.shapes.push({
           x: Math.max(0, a.left),
@@ -260,7 +289,7 @@ class A {
     const t = this.canvas.width, e = this.canvas.height, i = 50;
     this.ctx.fillStyle = "rgba(80, 60, 20, 0.85)", this.ctx.fillRect(0, 0, t, i);
     const s = this.ctx.createLinearGradient(0, i - 4, 0, i);
-    s.addColorStop(0, "#FFD700"), s.addColorStop(0.5, "#FFA500"), s.addColorStop(1, "#B8860B"), this.ctx.fillStyle = s, this.ctx.fillRect(0, i - 4, t, 4), this.ctx.font = 'bold 24px "Arial Black", "Impact", sans-serif', this.ctx.textAlign = "center", this.ctx.textBaseline = "middle", this.ctx.fillStyle = "#FFD700", this.ctx.fillText("MEGA WEB JACKPOT", t / 2, i / 2 - 2), this.ctx.font = "18px Arial", this.ctx.fillText("★", t / 2 - 140, i / 2), this.ctx.fillText("★", t / 2 + 140, i / 2), this.ctx.font = "14px Arial", this.ctx.fillText("✦", t / 2 - 160, i / 2), this.ctx.fillText("✦", t / 2 + 160, i / 2);
+    s.addColorStop(0, "#FFD700"), s.addColorStop(0.5, "#FFA500"), s.addColorStop(1, "#B8860B"), this.ctx.fillStyle = s, this.ctx.fillRect(0, i - 4, t, 4), this.ctx.font = 'bold 24px "Arial Black", "Impact", sans-serif', this.ctx.textAlign = "center", this.ctx.textBaseline = "middle", this.ctx.fillStyle = "#FFD700", this.ctx.fillText(this.ticketTitle, t / 2, i / 2 - 2), this.ctx.font = "18px Arial", this.ctx.fillText("★", t / 2 - 155, i / 2), this.ctx.fillText("★", t / 2 + 155, i / 2), this.ctx.font = "14px Arial", this.ctx.fillText("✦", t / 2 - 175, i / 2), this.ctx.fillText("✦", t / 2 + 175, i / 2);
     const a = this.generateSerialNumber();
     this.ctx.font = '10px "Courier New", monospace', this.ctx.textAlign = "right", this.ctx.fillStyle = "rgba(255, 215, 0, 0.7)", this.ctx.fillText(`SN: ${a}`, t - 15, 15), this.ctx.font = "bold 14px Arial, sans-serif", this.ctx.textAlign = "center", this.ctx.fillStyle = "rgba(60, 60, 60, 0.9)", this.ctx.fillText("Match 3 <div>s to WIN!", t / 2, i + 22);
     const n = e - 30;
@@ -394,7 +423,7 @@ class A {
   }
   scratch(t, e, i, s) {
     if (this.isFading) return;
-    this.hasStartedScratching || (this.hasStartedScratching = !0, this.sessionStartTime = Date.now(), M.trackEvent("scratch_started", {
+    this.hasStartedScratching || (this.hasStartedScratching = !0, this.sessionStartTime = Date.now(), T.trackEvent("scratch_started", {
       device_type: this.deviceType,
       viewport_width: window.innerWidth,
       viewport_height: window.innerHeight
@@ -513,7 +542,7 @@ class A {
       if (a >= h && !this.progressMilestonesReached.has(o)) {
         this.progressMilestonesReached.add(o);
         const r = this.sessionStartTime > 0 ? Date.now() - this.sessionStartTime : 0;
-        M.trackEvent("scratch_progress", {
+        T.trackEvent("scratch_progress", {
           progress_percent: o,
           elapsed_time_ms: r,
           scratch_count: this.scratchCount,
@@ -624,7 +653,7 @@ class A {
   fadeOut() {
     this.isFading = !0;
     const t = this.sessionStartTime > 0 ? Date.now() - this.sessionStartTime : 0;
-    M.trackEvent("scratch_completed", {
+    T.trackEvent("scratch_completed", {
       total_time_ms: t,
       total_scratch_count: this.scratchCount,
       device_type: this.deviceType,
@@ -649,7 +678,7 @@ class A {
     this.updateParticles(), this.updateConfetti(), this.drawParticles(), this.drawConfetti(), this.animationId = requestAnimationFrame(() => this.animate());
   }
 }
-new A();
+new F();
 export {
-  A as ScratchOff
+  F as ScratchOff
 };
