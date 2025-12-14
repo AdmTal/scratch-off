@@ -167,6 +167,47 @@
       margin: 0 10px;
       color: rgba(255,255,255,0.7);
     }
+
+    .bookmarklet-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .bookmarklet-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #1a1a2e;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: grab;
+    }
+
+    .bookmarklet-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+    }
+
+    .bookmarklet-button:active {
+      cursor: grabbing;
+    }
+
+    .bookmarklet-hint {
+      color: #888;
+      font-size: 0.9rem;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .bookmarklet-code {
+      font-size: 0.75rem;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
@@ -210,6 +251,18 @@
     <div class="card">
       <h2>One Line Install</h2>
       <div class="code-block">&lt;script src="https://scratchoff.netlify.app/scratch-off.iife.js"&gt;&lt;/script&gt;</div>
+    </div>
+
+    <div class="card">
+      <h2>Bookmarklet</h2>
+      <p>Drag this button to your bookmarks bar, then click it on any website to turn that page into a scratch-off ticket:</p>
+      <div class="bookmarklet-container">
+        <a class="bookmarklet-button" href="javascript:(function(){if(window.ScratchOff){alert('ScratchOff is already active on this page!');return;}var s=document.createElement('script');s.src='https://scratchoff.netlify.app/scratch-off.iife.js';s.onerror=function(){alert('Failed to load ScratchOff. Check your internet connection.');};document.body.appendChild(s);})();">
+          Scratch-Off!
+        </a>
+      </div>
+      <p class="bookmarklet-hint">Or copy this code and create a new bookmark manually:</p>
+      <div class="code-block bookmarklet-code">javascript:(function(){if(window.ScratchOff){alert('ScratchOff is already active on this page!');return;}var s=document.createElement('script');s.src='https://scratchoff.netlify.app/scratch-off.iife.js';s.onerror=function(){alert('Failed to load ScratchOff. Check your internet connection.');};document.body.appendChild(s);})();</div>
     </div>
 
     <footer>
