@@ -3,86 +3,6 @@
  * Turns any website into a scratch-off lottery ticket experience
  */
 
-// Google Analytics Measurement ID
-const GA_MEASUREMENT_ID = 'G-552PMDLPMQ';
-
-// Extend window for gtag
-declare global {
-  interface Window {
-    dataLayer: unknown[];
-    gtag: (...args: unknown[]) => void;
-  }
-}
-
-/**
- * Analytics module for tracking scratch-off events
- * Supports cross-domain tracking by including host info with every event
- */
-const Analytics = {
-  initialized: false,
-
-  /**
-   * Initialize Google Analytics if not already present
-   * This allows tracking when the script is embedded on external sites
-   */
-  init(): void {
-    if (this.initialized) return;
-    this.initialized = true;
-
-    // Initialize dataLayer if not present
-    window.dataLayer = window.dataLayer || [];
-
-    // Define gtag function if not present
-    if (typeof window.gtag !== 'function') {
-      window.gtag = function gtag(...args: unknown[]) {
-        window.dataLayer.push(args);
-      };
-    }
-
-    // Check if GA script is already loaded
-    const existingScript = document.querySelector(`script[src*="googletagmanager.com/gtag/js"]`);
-    if (!existingScript) {
-      // Dynamically load GA script for embedded usage
-      const script = document.createElement('script');
-      script.async = true;
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-      document.head.appendChild(script);
-    }
-
-    // Configure GA
-    window.gtag('js', new Date());
-    window.gtag('config', GA_MEASUREMENT_ID, {
-      // Don't send automatic page view - we'll send our own with host info
-      send_page_view: false
-    });
-
-    // Send custom page view with host information for cross-domain tracking
-    this.trackEvent('page_view', {
-      page_title: document.title,
-      page_location: window.location.href,
-      page_path: window.location.pathname
-    });
-  },
-
-  /**
-   * Track an event with host information for cross-domain analytics
-   */
-  trackEvent(eventName: string, params: Record<string, unknown> = {}): void {
-    if (typeof window.gtag !== 'function') return;
-
-    // Add host information to all events for cross-domain tracking
-    const enrichedParams = {
-      ...params,
-      host_name: window.location.hostname,
-      host_url: window.location.origin,
-      page_referrer: document.referrer || 'direct',
-      embedded: window.self !== window.top // true if in iframe
-    };
-
-    window.gtag('event', eventName, enrichedParams);
-  }
-};
-
 interface Particle {
   x: number;
   y: number;
@@ -177,12 +97,6 @@ class ScratchOff {
   private coinCursorLarge = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cellipse cx='36' cy='41' rx='32' ry='23' fill='%23B8860B'/%3E%3Cellipse cx='36' cy='32' rx='32' ry='23' fill='%23FFD700'/%3E%3Cellipse cx='36' cy='32' rx='25' ry='16' fill='%23FFA500'/%3E%3Cellipse cx='36' cy='32' rx='25' ry='16' fill='url(%23shine)'/%3E%3Ctext x='36' y='38' font-family='Arial' font-size='23' font-weight='bold' fill='%23B8860B' text-anchor='middle'%3E%24%3C/text%3E%3Cdefs%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FFE66D;stop-opacity:0.8'/%3E%3Cstop offset='50%25' style='stop-color:%23FFD700;stop-opacity:0'/%3E%3Cstop offset='100%25' style='stop-color:%23B8860B;stop-opacity:0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E") 36 36, crosshair`;
   private coinCursor = this.coinCursorSmall;
   private scratchDirectionChangeCount = 0;
-  // Analytics tracking state
-  private hasStartedScratching = false;
-  private progressMilestonesReached = new Set<number>();
-  private sessionStartTime = 0;
-  private scratchCount = 0;
-  private deviceType: 'mouse' | 'touch' = 'mouse';
   // Random lottery ticket titles
   private readonly ticketTitles = [
     'MEGA MILLIONS',
@@ -313,9 +227,6 @@ class ScratchOff {
 
     // Pre-initialize audio context on first user interaction
     this.initAudioOnInteraction();
-
-    // Initialize analytics
-    Analytics.init();
 
     // Start animation loop
     this.animate();
@@ -942,7 +853,6 @@ class ScratchOff {
 
   private handleTouchStart(e: TouchEvent): void {
     e.preventDefault();
-    this.deviceType = 'touch';
     // Process all new touches
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
@@ -1023,20 +933,6 @@ class ScratchOff {
 
   private scratch(x: number, y: number, lastX: number, lastY: number): void {
     if (this.isFading) return;
-
-    // Track first scratch interaction
-    if (!this.hasStartedScratching) {
-      this.hasStartedScratching = true;
-      this.sessionStartTime = Date.now();
-      Analytics.trackEvent('scratch_started', {
-        device_type: this.deviceType,
-        viewport_width: window.innerWidth,
-        viewport_height: window.innerHeight
-      });
-    }
-
-    // Increment scratch count for analytics
-    this.scratchCount++;
 
     // Check if there's actually paint to scratch at this location
     const hasPaint = this.hasPaintAt(x, y);
@@ -1328,22 +1224,6 @@ class ScratchOff {
     const sampleTotal = Math.floor(data.length / 400);
     const progress = scratched / sampleTotal;
 
-    // Track progress milestones (25%, 50%, 75%)
-    const milestones = [25, 50, 75];
-    for (const milestone of milestones) {
-      const threshold = milestone / 100;
-      if (progress >= threshold && !this.progressMilestonesReached.has(milestone)) {
-        this.progressMilestonesReached.add(milestone);
-        const elapsedTime = this.sessionStartTime > 0 ? Date.now() - this.sessionStartTime : 0;
-        Analytics.trackEvent('scratch_progress', {
-          progress_percent: milestone,
-          elapsed_time_ms: elapsedTime,
-          scratch_count: this.scratchCount,
-          device_type: this.deviceType
-        });
-      }
-    }
-
     if (progress >= this.fadeThreshold && !this.isFading) {
       this.fadeOut();
     }
@@ -1539,16 +1419,6 @@ class ScratchOff {
 
   private fadeOut(): void {
     this.isFading = true;
-
-    // Track completion event
-    const totalTime = this.sessionStartTime > 0 ? Date.now() - this.sessionStartTime : 0;
-    Analytics.trackEvent('scratch_completed', {
-      total_time_ms: totalTime,
-      total_scratch_count: this.scratchCount,
-      device_type: this.deviceType,
-      viewport_width: window.innerWidth,
-      viewport_height: window.innerHeight
-    });
 
     // Show winner overlay with confetti first
     this.showWinnerOverlay();
