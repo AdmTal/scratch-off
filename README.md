@@ -57,24 +57,6 @@ Outputs to `dist/` in a few formats (ES, UMD, IIFE).
 
 Modern browsers. You're fine.
 
-## Publishing to NPM
-
-Releases are automated via GitHub Actions. To publish a new version:
-
-1. Go to the GitHub repo → Releases → "Create a new release"
-2. Create a new tag like `v1.0.1` (the `v` prefix is required)
-3. Click "Publish release"
-
-That's it. GitHub Actions will build and publish to NPM automatically.
-
-### First-time setup
-
-Add your NPM token as a GitHub secret:
-
-1. Get an NPM access token from [npmjs.com](https://www.npmjs.com/settings/~/tokens) (use "Automation" type)
-2. Go to repo Settings → Secrets and variables → Actions
-3. Add a new secret named `NPM_TOKEN` with your token
-
 ## License
 
 MIT
