@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "scratch-off": "file:.."
+    "scratch-off": "^1.0.0"
   },
   "devDependencies": {
     "vite": "^5.0.10"
