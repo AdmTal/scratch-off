@@ -1353,7 +1353,11 @@ class ScratchOff {
         50% { text-shadow: 0 0 40px #FFD700, 0 0 80px #FFA500, 0 0 120px #FF6347; }
       }
     `;
-    document.head.appendChild(style);
+    if (document.head) {
+      document.head.appendChild(style);
+    } else if (document.body) {
+      document.body.appendChild(style);
+    }
 
     overlay.innerHTML = `
       <div style="

@@ -580,7 +580,7 @@ class A {
         0%, 100% { text-shadow: 0 0 20px #FFD700, 0 0 40px #FFA500, 0 0 60px #FF6347; }
         50% { text-shadow: 0 0 40px #FFD700, 0 0 80px #FFA500, 0 0 120px #FF6347; }
       }
-    `, document.head.appendChild(e), t.innerHTML = `
+    `, document.head ? document.head.appendChild(e) : document.body && document.body.appendChild(e), t.innerHTML = `
       <div style="
         font-family: 'Arial Black', Impact, sans-serif;
         font-size: 72px;
