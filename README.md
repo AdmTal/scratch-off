@@ -20,7 +20,7 @@ Users scratch to reveal your content. It's dumb and delightful.
 Script tag. Done.
 
 ```html
-<script src="https://scratchy-lotto.com/scratch-off.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/scratch-off@latest/dist/scratch-off.umd.js"></script>
 ```
 
 Or npm if that's your thing:
