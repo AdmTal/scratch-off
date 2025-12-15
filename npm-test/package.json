@@ -1,0 +1,18 @@
+{
+  "name": "scratch-off-npm-test",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test project to verify scratch-off NPM package works",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "scratch-off": "^1.0.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.10"
+  }
+}

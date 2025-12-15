@@ -3,14 +3,12 @@
   "version": "1.0.0",
   "description": "Turn any website into a scratch-off lottery ticket experience",
   "type": "module",
-  "main": "dist/scratch-off.umd.cjs",
-  "module": "dist/scratch-off.js",
-  "types": "dist/scratch-off.d.ts",
+  "main": "dist/scratch-off.umd.js",
+  "module": "dist/scratch-off.es.js",
   "exports": {
     ".": {
-      "import": "./dist/scratch-off.js",
-      "require": "./dist/scratch-off.umd.cjs",
-      "types": "./dist/scratch-off.d.ts"
+      "import": "./dist/scratch-off.es.js",
+      "require": "./dist/scratch-off.umd.js"
     }
   },
   "files": [
