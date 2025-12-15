@@ -287,7 +287,11 @@
 
         const response = await fetch(iifeUrl);
         if (!response.ok) throw new Error('Failed to fetch IIFE');
-        const iifeCode = await response.text();
+        let iifeCode = await response.text();
+
+        // Escape % characters so they survive URL decoding when bookmarklet is clicked
+        // Without this, SVG data URLs with %23 (for #) get decoded prematurely and break the cursor
+        iifeCode = iifeCode.replace(/%/g, '%25');
 
         // Create the inline bookmarklet - wraps the IIFE with duplicate check
         const bookmarkletCode = `javascript:(function(){if(window.ScratchOff){alert('ScratchOff is already active on this page!');return;}${iifeCode}})();`;
